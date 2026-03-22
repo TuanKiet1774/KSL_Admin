@@ -27,10 +27,19 @@ const User = () => {
     const [formData, setFormData] = useState({});
     const [isSaving, setIsSaving] = useState(false);
     const [notif, setNotif] = useState({ isOpen: false, type: 'success', message: '' });
+    const [currentUser, setCurrentUser] = useState(null);
 
     const pageSize = 5;
 
     useEffect(() => {
+        const storedUser = localStorage.getItem('user');
+        if (storedUser) {
+            const parsedData = JSON.parse(storedUser);
+            const user = parsedData.success && parsedData.data ? parsedData.data :
+                        (parsedData.user ? parsedData.user : 
+                        (parsedData.data ? parsedData.data : parsedData));
+            setCurrentUser(user);
+        }
         fetchUsers();
     }, []);
 
@@ -55,11 +64,16 @@ const User = () => {
         setCurrentPage(1);
     }, [searchTerm]);
 
-    const filteredUsers = users.filter(user =>
-        (user.fullname || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (user.email || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (user.username || "").toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredUsers = users.filter(user => {
+        if (currentUser && (user._id === currentUser._id || user._id === currentUser.id)) {
+            return false;
+        }
+
+        return (user.fullname || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+               (user.email || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+               (user.username || "").toLowerCase().includes(searchTerm.toLowerCase())
+    });
+
 
     const totalUsers = filteredUsers.length;
     const startIndex = (currentPage - 1) * pageSize;
@@ -412,7 +426,10 @@ const User = () => {
                 onSubmit={handleEditSubmit}
                 title="Chỉnh sửa người dùng"
                 initialData={formData}
-                fields={userFields.filter(f => f.name !== 'password' && f.name !== 'confirmPassword')}
+                fields={userFields
+                    .filter(f => f.name !== 'password' && f.name !== 'confirmPassword')
+                    .map(f => f.name === 'username' ? { ...f, readOnly: true } : f)
+                }
                 isLoading={isSaving}
             />
 

@@ -135,11 +135,12 @@ const FormBase = ({
                                         <div className="password-input-wrapper">
                                             <input
                                                 type={field.type === 'password' ? (showPasswords[field.name] ? 'text' : 'password') : (field.type || 'text')}
-                                                className="form-input"
+                                                className={`form-input ${field.readOnly ? 'input-readonly' : ''}`}
                                                 placeholder={field.placeholder || `Nhập ${field.label}...`}
                                                 value={formData[field.name] || ''}
                                                 onChange={(e) => handleChange(field.name, e.target.value)}
                                                 required={field.required}
+                                                readOnly={field.readOnly}
                                             />
                                             {field.type === 'password' && (
                                                 <button type="button" className="password-toggle-btn" onClick={() => setShowPasswords(prev => ({ ...prev, [field.name]: !prev[field.name] }))}>

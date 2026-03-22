@@ -38,17 +38,13 @@ const Login = () => {
             const response = await login(formData.emailOrUsername, formData.password);
             
             if (response.success) {
-                // Store user data and token in localStorage
+                // Store only user object, not the whole response
                 localStorage.setItem('user', JSON.stringify(response.data));
                 localStorage.setItem('token', response.data.token);
-                
-                // Redirect to dashboard
                 navigate('/');
-                // Force a page reload to update App.jsx state if necessary, 
-                // or just rely on state management. 
-                // For simplicity here, we'll navigate.
                 window.location.reload(); 
             }
+
         } catch (err) {
             setError(err.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại tài khoản.');
         } finally {

@@ -8,6 +8,7 @@ import Topics from './pages/Topic';
 import Words from './pages/Word';
 import Exams from './pages/Exam';
 import Feedback from './pages/Feedback';
+import Profile from './pages/Profile';
 import './App.css';
 
 function App() {
@@ -39,6 +40,7 @@ function App() {
                     <Route path="/words" element={<Words />} />
                     <Route path="/exams" element={<Exams />} />
                     <Route path="/feedback" element={<Feedback />} />
+                    <Route path="/profile" element={<Profile />} />
                   </Routes>
                 </main>
               </div>
