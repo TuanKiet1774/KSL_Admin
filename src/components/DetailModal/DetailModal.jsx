@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
-import './Modal.css';
+import './DetailModal.css';
 
-const Modal = ({ isOpen, onClose, title, children }) => {
+const DetailModal = ({ isOpen, onClose, title, children }) => {
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
@@ -35,4 +35,4 @@ const Modal = ({ isOpen, onClose, title, children }) => {
   );
 };
 
-export default Modal;
+export default DetailModal;

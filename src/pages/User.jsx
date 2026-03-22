@@ -4,7 +4,9 @@ import { Eye, Plus, Trash2, Edit2, Award } from 'lucide-react';
 import Loading from '../components/Loading/Loading';
 import DataTable from '../components/DataTable/DataTable';
 import SearchBox from '../components/SearchBox/SearchBox';
-import Modal from '../components/Modal/Modal';
+import Modal from '../components/DetailModal/DetailModal';
+import ConfirmModal from '../components/ConfirmModal/ConfirmModal';
+import NotificationModal from '../components/NotificationModal/NotificationModal';
 import './style/User.css';
 
 const User = () => {
@@ -13,8 +15,19 @@ const User = () => {
     const [error, setError] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
+    
+    // View Modal State
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
     const [selectedUser, setSelectedUser] = useState(null);
+    
+    // Delete Modal State
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [userToDelete, setUserToDelete] = useState(null);
+    const [isDeleting, setIsDeleting] = useState(false);
+
+    // Notification State
+    const [notif, setNotif] = useState({ isOpen: false, type: 'success', message: '' });
+
     const pageSize = 5;
 
     useEffect(() => {
@@ -59,6 +72,45 @@ const User = () => {
     const handleViewDetail = (user) => {
         setSelectedUser(user);
         setIsViewModalOpen(true);
+    };
+
+    const handleDeleteClick = (user) => {
+        setUserToDelete(user);
+        setIsDeleteModalOpen(true);
+    };
+
+    const handleConfirmDelete = async () => {
+        if (!userToDelete) return;
+        try {
+            setIsDeleting(true);
+            const response = await axios.delete(`/api/users/${userToDelete._id}`);
+            setIsDeleteModalOpen(false);
+            
+            if (response.data.success) {
+                setUsers(users.filter(u => u._id !== userToDelete._id));
+                setNotif({ 
+                    isOpen: true, 
+                    type: 'success', 
+                    message: `Đã xóa người dùng "${userToDelete.fullname || userToDelete.username}" thành công.` 
+                });
+            } else {
+                setNotif({ 
+                    isOpen: true, 
+                    type: 'error', 
+                    message: response.data.message || "Không thể xóa người dùng." 
+                });
+            }
+        } catch (err) {
+            console.error("Error deleting user:", err);
+            setNotif({ 
+                isOpen: true, 
+                type: 'error', 
+                message: "Đã xảy ra lỗi khi kết nối với máy chủ." 
+            });
+        } finally {
+            setIsDeleting(false);
+            setUserToDelete(null);
+        }
     };
 
     const formatDate = (dateStr) => {
@@ -130,7 +182,7 @@ const User = () => {
                 <div className="actions">
                     <button className="action-btn" onClick={() => handleViewDetail(row)} title="Xem chi tiết"><Eye size={16} color="#6366f1" /></button>
                     <button className="action-btn" title="Chỉnh sửa"><Edit2 size={16} color="#6366f1" /></button>
-                    <button className="action-btn" title="Xóa"><Trash2 size={16} color="#ef4444" /></button>
+                    <button className="action-btn" onClick={() => handleDeleteClick(row)} title="Xóa"><Trash2 size={16} color="#ef4444" /></button>
                 </div>
             )
         }
@@ -170,7 +222,7 @@ const User = () => {
                 }}
             />
 
-            {/* User Detail Modal */}
+            {/* View Modal */}
             <Modal
                 isOpen={isViewModalOpen}
                 onClose={() => setIsViewModalOpen(false)}
@@ -227,15 +279,29 @@ const User = () => {
                                 <span className="info-label">Ngày tham gia</span>
                                 <span className="info-value">{formatDate(selectedUser.createdAt)}</span>
                             </div>
-                            <div className="info-item">
-                                <span className="info-label">Cập nhật lần cuối</span>
-                                <span className="info-value">{formatDate(selectedUser.updatedAt)}</span>
-                            </div>
                         </div>
-
                     </div>
                 )}
             </Modal>
+
+            {/* Delete Confirm Modal */}
+            <ConfirmModal
+                isOpen={isDeleteModalOpen}
+                onClose={() => setIsDeleteModalOpen(false)}
+                onConfirm={handleConfirmDelete}
+                title="Xác nhận xóa người dùng"
+                message={`Bạn có chắc chắn muốn xóa người dùng "${userToDelete?.fullname || userToDelete?.username}"? Hành động này không thể hoàn tác.`}
+                isLoading={isDeleting}
+            />
+
+            {/* Notification Modal */}
+            <NotificationModal
+                isOpen={notif.isOpen}
+                type={notif.type}
+                message={notif.message}
+                onClose={() => setNotif({ ...notif, isOpen: false })}
+                autoCloseTime={3000}
+            />
         </div>
     );
 };
