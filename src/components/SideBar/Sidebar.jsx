@@ -21,6 +21,12 @@ const Sidebar = () => {
     { name: 'Feedback', icon: MessageSquare, path: '/feedback' },
   ];
 
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = '/login';
+  };
+
   return (
     <aside className="sidebar">
       <div className="sidebar-header">
@@ -46,7 +52,7 @@ const Sidebar = () => {
       </nav>
 
       <div className="sidebar-footer">
-        <button className="logout-btn">
+        <button className="logout-btn" onClick={handleLogout}>
           <LogOut size={20} />
           <span>Logout</span>
         </button>
