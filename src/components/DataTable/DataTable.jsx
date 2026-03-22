@@ -2,12 +2,12 @@ import React from 'react';
 import Pagination from '../Pagination/Pagination';
 import './DataTable.css';
 
-const DataTable = ({ 
-  columns = [], 
-  data = [], 
-  loading = false, 
-  error = null, 
-  pagination = null 
+const DataTable = ({
+  columns = [],
+  data = [],
+  loading = false,
+  error = null,
+  pagination = null
 }) => {
   if (error) {
     return (
@@ -23,7 +23,7 @@ const DataTable = ({
         <thead>
           <tr>
             {columns.map((column, index) => (
-              <th key={index} style={{ width: column.width }}>
+              <th key={index} style={{ width: column.width, textAlign: 'center' }}>
                 {column.header}
               </th>
             ))}
@@ -45,8 +45,8 @@ const DataTable = ({
               <tr key={row._id || rowIndex}>
                 {columns.map((column, colIndex) => (
                   <td key={colIndex}>
-                    {column.render 
-                      ? column.render(row[column.key], row) 
+                    {column.render
+                      ? column.render(row[column.key], row)
                       : row[column.key] || "N/A"
                     }
                   </td>
@@ -64,11 +64,11 @@ const DataTable = ({
       </table>
 
       {pagination && (
-        <Pagination 
-          total={pagination.total} 
+        <Pagination
+          total={pagination.total}
           pageSize={pagination.pageSize || 10}
           currentPage={pagination.currentPage}
-          onPageChange={pagination.onPageChange || (() => {})}
+          onPageChange={pagination.onPageChange || (() => { })}
         />
       ) || null}
     </div>

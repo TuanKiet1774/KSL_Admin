@@ -179,7 +179,7 @@ const User = () => {
             key: "_id", 
             width: "20%",
             render: (val, row) => (
-                <div className="actions">
+                <div className="actions" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                     <button className="action-btn" onClick={() => handleViewDetail(row)} title="Xem chi tiết"><Eye size={16} color="#6366f1" /></button>
                     <button className="action-btn" title="Chỉnh sửa"><Edit2 size={16} color="#6366f1" /></button>
                     <button className="action-btn" onClick={() => handleDeleteClick(row)} title="Xóa"><Trash2 size={16} color="#ef4444" /></button>
