@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import axios from '../config/axios';
 import { Eye, Plus, Trash2, Edit2, Award } from 'lucide-react';
 import Loading from '../components/Loading/Loading';
 import DataTable from '../components/DataTable/DataTable';
@@ -7,7 +6,10 @@ import SearchBox from '../components/SearchBox/SearchBox';
 import Modal from '../components/DetailModal/DetailModal';
 import ConfirmModal from '../components/ConfirmModal/ConfirmModal';
 import NotificationModal from '../components/NotificationModal/NotificationModal';
+import AddModal from '../components/AddModal/AddModal';
+import EditModal from '../components/EditModal/EditModal';
 import './style/User.css';
+import userService from '../services/userService';
 
 const User = () => {
     const [users, setUsers] = useState([]);
@@ -15,41 +17,39 @@ const User = () => {
     const [error, setError] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
-    
-    // View Modal State
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
     const [selectedUser, setSelectedUser] = useState(null);
-    
-    // Delete Modal State
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [userToDelete, setUserToDelete] = useState(null);
     const [isDeleting, setIsDeleting] = useState(false);
-
-    // Notification State
+    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [formData, setFormData] = useState({});
+    const [isSaving, setIsSaving] = useState(false);
     const [notif, setNotif] = useState({ isOpen: false, type: 'success', message: '' });
 
     const pageSize = 5;
 
     useEffect(() => {
-        const fetchUsers = async () => {
-            try {
-                setLoading(true);
-                const response = await axios.get(`/api/users`);
-                if (response.data.success) {
-                    setUsers(response.data.data);
-                } else {
-                    setError("Không thể tải danh sách người dùng.");
-                }
-            } catch (err) {
-                console.error("Error fetching users:", err);
-                setError("Đã xảy ra lỗi khi kết nối với máy chủ.");
-            } finally {
-                setTimeout(() => setLoading(false), 600);
-            }
-        };
-
         fetchUsers();
     }, []);
+
+    const fetchUsers = async () => {
+        try {
+            setLoading(true);
+            const data = await userService.getAllUsers();
+            if (data.success) {
+                setUsers(data.data);
+            } else {
+                setError("Không thể tải danh sách người dùng.");
+            }
+        } catch (err) {
+            console.error("Error fetching users:", err);
+            setError("Đã xảy ra lỗi khi kết nối với máy chủ.");
+        } finally {
+            setTimeout(() => setLoading(false), 600);
+        }
+    };
 
     useEffect(() => {
         setCurrentPage(1);
@@ -66,12 +66,100 @@ const User = () => {
     const paginatedUsers = filteredUsers.slice(startIndex, startIndex + pageSize);
 
     const handleImageError = (e, name) => {
-        e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&color=fff`;
+        e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(name || 'User')}&background=random&color=fff`;
+    };
+
+    const getUserAvatar = (user) => {
+        if (user?.avatar) return user.avatar;
+        const name = user?.fullname || user?.username || 'User';
+        return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&color=fff`;
     };
 
     const handleViewDetail = (user) => {
         setSelectedUser(user);
         setIsViewModalOpen(true);
+    };
+
+    const handleAddClick = () => {
+        setFormData({
+            role: 'user',
+            level: 'Beginner',
+            isActive: true
+        });
+        setIsAddModalOpen(true);
+    };
+
+    const handleEditClick = (user) => {
+        const formattedUser = {
+            ...user,
+            birthday: user.birthday ? user.birthday.split('T')[0] : ''
+        };
+        setFormData(formattedUser);
+        setIsEditModalOpen(true);
+    };
+
+    const handleAddSubmit = async (data) => {
+        try {
+            setIsSaving(true);
+            const result = await userService.createUser(data);
+            if (result.success) {
+                setNotif({
+                    isOpen: true,
+                    type: 'success',
+                    message: "Thêm người dùng thành công!"
+                });
+                setIsAddModalOpen(false);
+                fetchUsers();
+            } else {
+                setNotif({
+                    isOpen: true,
+                    type: 'error',
+                    message: result.message || "Đã có lỗi xảy ra."
+                });
+            }
+        } catch (err) {
+            console.error("Error adding user:", err);
+            const serverMsg = err.response?.data?.message || err.response?.data?.error || "Lỗi kết nối server.";
+            setNotif({
+                isOpen: true,
+                type: 'error',
+                message: serverMsg
+            });
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const handleEditSubmit = async (data) => {
+        try {
+            setIsSaving(true);
+            const result = await userService.updateUser(data._id, data);
+            if (result.success) {
+                setNotif({
+                    isOpen: true,
+                    type: 'success',
+                    message: "Cập nhật người dùng thành công!"
+                });
+                setIsEditModalOpen(false);
+                fetchUsers();
+            } else {
+                setNotif({
+                    isOpen: true,
+                    type: 'error',
+                    message: result.message || "Đã có lỗi xảy ra."
+                });
+            }
+        } catch (err) {
+            console.error("Error updating user:", err);
+            const serverMsg = err.response?.data?.message || err.response?.data?.error || "Lỗi kết nối server.";
+            setNotif({
+                isOpen: true,
+                type: 'error',
+                message: serverMsg
+            });
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     const handleDeleteClick = (user) => {
@@ -83,29 +171,29 @@ const User = () => {
         if (!userToDelete) return;
         try {
             setIsDeleting(true);
-            const response = await axios.delete(`/api/users/${userToDelete._id}`);
+            const data = await userService.deleteUser(userToDelete._id);
             setIsDeleteModalOpen(false);
-            
-            if (response.data.success) {
+
+            if (data.success) {
                 setUsers(users.filter(u => u._id !== userToDelete._id));
-                setNotif({ 
-                    isOpen: true, 
-                    type: 'success', 
-                    message: `Đã xóa người dùng "${userToDelete.fullname || userToDelete.username}" thành công.` 
+                setNotif({
+                    isOpen: true,
+                    type: 'success',
+                    message: `Đã xóa người dùng "${userToDelete.fullname || userToDelete.username}" thành công.`
                 });
             } else {
-                setNotif({ 
-                    isOpen: true, 
-                    type: 'error', 
-                    message: response.data.message || "Không thể xóa người dùng." 
+                setNotif({
+                    isOpen: true,
+                    type: 'error',
+                    message: data.message || "Không thể xóa người dùng."
                 });
             }
         } catch (err) {
             console.error("Error deleting user:", err);
-            setNotif({ 
-                isOpen: true, 
-                type: 'error', 
-                message: "Đã xảy ra lỗi khi kết nối với máy chủ." 
+            setNotif({
+                isOpen: true,
+                type: 'error',
+                message: "Đã xảy ra lỗi khi kết nối với máy chủ."
             });
         } finally {
             setIsDeleting(false);
@@ -122,16 +210,38 @@ const User = () => {
         });
     };
 
+    const userFields = [
+        { name: 'avatar', label: 'Ảnh đại diện', type: 'image', fullWidth: true },
+        { name: 'fullname', label: 'Họ và tên', type: 'text', required: true },
+        { name: 'username', label: 'Tên đăng nhập', type: 'text', required: true },
+        { name: 'email', label: 'Email', type: 'email', required: true },
+        { name: 'phone', label: 'Số điện thoại', type: 'text' },
+        {
+            name: 'role',
+            label: 'Vai trò',
+            type: 'select',
+            options: [
+                { label: 'Admin', value: 'admin' },
+                { label: 'User', value: 'user' }
+            ],
+            required: true
+        },
+        { name: 'birthday', label: 'Ngày sinh', type: 'date' },
+        { name: 'address', label: 'Địa chỉ', type: 'text', fullWidth: true },
+        { name: 'password', label: 'Mật khẩu', type: 'password', required: true },
+        { name: 'confirmPassword', label: 'Xác nhận mật khẩu', type: 'password', required: true }
+    ];
+
     const columns = [
-        { 
-            header: "Người dùng", 
-            key: "fullname", 
+        {
+            header: "Người dùng",
+            key: "fullname",
             width: "30%",
             render: (val, row) => (
                 <div className="user-info">
-                    <img 
-                        src={row.avatar} 
-                        alt={row.fullname} 
+                    <img
+                        src={getUserAvatar(row)}
+                        alt={row.fullname}
                         className="user-avatar"
                         onError={(e) => handleImageError(e, row.fullname || row.username)}
                     />
@@ -142,9 +252,9 @@ const User = () => {
                 </div>
             )
         },
-        { 
-            header: "Liên hệ", 
-            key: "email", 
+        {
+            header: "Liên hệ",
+            key: "email",
             width: "25%",
             render: (val, row) => (
                 <div className="user-contact">
@@ -153,9 +263,9 @@ const User = () => {
                 </div>
             )
         },
-        { 
-            header: "Vai trò", 
-            key: "role", 
+        {
+            header: "Vai trò",
+            key: "role",
             width: "10%",
             render: (val) => (
                 <span className={`badge badge-${val}`}>
@@ -163,9 +273,9 @@ const User = () => {
                 </span>
             )
         },
-        { 
-            header: "Trình độ", 
-            key: "level", 
+        {
+            header: "Trình độ",
+            key: "level",
             width: "15%",
             render: (val) => (
                 <div className="level-badge">
@@ -174,14 +284,14 @@ const User = () => {
                 </div>
             )
         },
-        { 
-            header: "Chức năng", 
-            key: "_id", 
+        {
+            header: "Chức năng",
+            key: "_id",
             width: "20%",
             render: (val, row) => (
                 <div className="actions" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                     <button className="action-btn" onClick={() => handleViewDetail(row)} title="Xem chi tiết"><Eye size={16} color="#6366f1" /></button>
-                    <button className="action-btn" title="Chỉnh sửa"><Edit2 size={16} color="#6366f1" /></button>
+                    <button className="action-btn" onClick={() => handleEditClick(row)} title="Chỉnh sửa"><Edit2 size={16} color="#6366f1" /></button>
                     <button className="action-btn" onClick={() => handleDeleteClick(row)} title="Xóa"><Trash2 size={16} color="#ef4444" /></button>
                 </div>
             )
@@ -203,7 +313,7 @@ const User = () => {
                     placeholder="Tìm tên, email hoặc username..."
                 />
 
-                <button className="btn-add">
+                <button className="btn-add" onClick={handleAddClick}>
                     <Plus size={20} />
                     <span>Thêm người dùng</span>
                 </button>
@@ -214,9 +324,9 @@ const User = () => {
                 data={paginatedUsers}
                 loading={loading}
                 error={error}
-                pagination={{ 
-                    total: totalUsers, 
-                    pageSize: pageSize, 
+                pagination={{
+                    total: totalUsers,
+                    pageSize: pageSize,
                     currentPage: currentPage,
                     onPageChange: setCurrentPage
                 }}
@@ -231,9 +341,9 @@ const User = () => {
                 {selectedUser && (
                     <div className="user-detail-container">
                         <div className="user-detail-header">
-                            <img 
-                                src={selectedUser.avatar} 
-                                alt={selectedUser.fullname} 
+                            <img
+                                src={getUserAvatar(selectedUser)}
+                                alt={selectedUser.fullname}
                                 className="detail-avatar"
                                 onError={(e) => handleImageError(e, selectedUser.fullname || selectedUser.username)}
                             />
@@ -256,12 +366,12 @@ const User = () => {
                                 <span className="info-value">{selectedUser.phone || "N/A"}</span>
                             </div>
                             <div className="info-item">
-                                <span className="info-label">Ngày sinh</span>
-                                <span className="info-value">{formatDate(selectedUser.birthday)}</span>
-                            </div>
-                            <div className="info-item">
                                 <span className="info-label">Địa chỉ</span>
                                 <span className="info-value">{selectedUser.address || "N/A"}</span>
+                            </div>
+                            <div className="info-item">
+                                <span className="info-label">Ngày sinh</span>
+                                <span className="info-value">{formatDate(selectedUser.birthday)}</span>
                             </div>
                             <div className="info-item">
                                 <span className="info-label">Trình độ</span>
@@ -273,7 +383,7 @@ const User = () => {
                             </div>
                             <div className="info-item">
                                 <span className="info-label">Điểm số</span>
-                                <span className="info-value">{selectedUser.points} Points</span>
+                                <span className="info-value">{selectedUser.points || 0} Points</span>
                             </div>
                             <div className="info-item">
                                 <span className="info-label">Ngày tham gia</span>
@@ -283,6 +393,28 @@ const User = () => {
                     </div>
                 )}
             </Modal>
+
+            {/* Add User Modal */}
+            <AddModal
+                isOpen={isAddModalOpen}
+                onClose={() => setIsAddModalOpen(false)}
+                onSubmit={handleAddSubmit}
+                title="Thêm người dùng mới"
+                initialData={formData}
+                fields={userFields}
+                isLoading={isSaving}
+            />
+
+            {/* Edit User Modal */}
+            <EditModal
+                isOpen={isEditModalOpen}
+                onClose={() => setIsEditModalOpen(false)}
+                onSubmit={handleEditSubmit}
+                title="Chỉnh sửa người dùng"
+                initialData={formData}
+                fields={userFields.filter(f => f.name !== 'password' && f.name !== 'confirmPassword')}
+                isLoading={isSaving}
+            />
 
             {/* Delete Confirm Modal */}
             <ConfirmModal
