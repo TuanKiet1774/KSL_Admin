@@ -17,6 +17,7 @@ const User = () => {
     const [error, setError] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
+    const [totalUsers, setTotalUsers] = useState(0);
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
     const [selectedUser, setSelectedUser] = useState(null);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -27,28 +28,46 @@ const User = () => {
     const [formData, setFormData] = useState({});
     const [isSaving, setIsSaving] = useState(false);
     const [notif, setNotif] = useState({ isOpen: false, type: 'success', message: '' });
-    const [currentUser, setCurrentUser] = useState(null);
-
-    const pageSize = 5;
-
-    useEffect(() => {
+    const [currentUser, setCurrentUser] = useState(() => {
         const storedUser = localStorage.getItem('user');
         if (storedUser) {
             const parsedData = JSON.parse(storedUser);
-            const user = parsedData.success && parsedData.data ? parsedData.data :
-                        (parsedData.user ? parsedData.user : 
-                        (parsedData.data ? parsedData.data : parsedData));
-            setCurrentUser(user);
+            return parsedData.data || parsedData.user || parsedData;
         }
+        return null;
+    });
+
+    const pageSize = 10;
+
+    useEffect(() => {
         fetchUsers();
-    }, []);
+    }, [currentPage, searchTerm]);
 
     const fetchUsers = async () => {
         try {
             setLoading(true);
-            const data = await userService.getAllUsers();
-            if (data.success) {
-                setUsers(data.data);
+            const params = {
+                page: currentPage,
+                limit: pageSize,
+                search: searchTerm
+            };
+            const result = await userService.getAllUsers(params);
+            if (result.success) {
+                let userList = result.data || [];
+                let total = result.total || 0;
+
+                if (currentUser) {
+                    const currentId = currentUser._id || currentUser.id;
+                    const originalLength = userList.length;
+                    userList = userList.filter(u => u._id !== currentId && u.id !== currentId);
+                
+                    if (userList.length < originalLength) {
+                        total = Math.max(0, total - 1);
+                    }
+                }
+                
+                setUsers(userList);
+                setTotalUsers(total);
             } else {
                 setError("Không thể tải danh sách người dùng.");
             }
@@ -56,28 +75,13 @@ const User = () => {
             console.error("Error fetching users:", err);
             setError("Đã xảy ra lỗi khi kết nối với máy chủ.");
         } finally {
-            setTimeout(() => setLoading(false), 600);
+            setLoading(false);
         }
     };
 
     useEffect(() => {
         setCurrentPage(1);
     }, [searchTerm]);
-
-    const filteredUsers = users.filter(user => {
-        if (currentUser && (user._id === currentUser._id || user._id === currentUser.id)) {
-            return false;
-        }
-
-        return (user.fullname || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-               (user.email || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-               (user.username || "").toLowerCase().includes(searchTerm.toLowerCase())
-    });
-
-
-    const totalUsers = filteredUsers.length;
-    const startIndex = (currentPage - 1) * pageSize;
-    const paginatedUsers = filteredUsers.slice(startIndex, startIndex + pageSize);
 
     const handleImageError = (e, name) => {
         e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(name || 'User')}&background=random&color=fff`;
@@ -98,47 +102,38 @@ const User = () => {
         setFormData({
             role: 'user',
             level: 'Beginner',
-            isActive: true
+            isActive: 'true'
         });
         setIsAddModalOpen(true);
     };
 
     const handleEditClick = (user) => {
-        const formattedUser = {
+        setFormData({
             ...user,
-            birthday: user.birthday ? user.birthday.split('T')[0] : ''
-        };
-        setFormData(formattedUser);
+            birthday: user.birthday ? user.birthday.split('T')[0] : '',
+            isActive: user.isActive?.toString() || 'true'
+        });
         setIsEditModalOpen(true);
     };
 
     const handleAddSubmit = async (data) => {
         try {
             setIsSaving(true);
-            const result = await userService.createUser(data);
+            const payload = {
+                ...data,
+                isActive: data.isActive === 'true' || data.isActive === true
+            };
+            const result = await userService.createUser(payload);
             if (result.success) {
-                setNotif({
-                    isOpen: true,
-                    type: 'success',
-                    message: "Thêm người dùng thành công!"
-                });
+                setNotif({ isOpen: true, type: 'success', message: "Thêm người dùng thành công!" });
                 setIsAddModalOpen(false);
                 fetchUsers();
             } else {
-                setNotif({
-                    isOpen: true,
-                    type: 'error',
-                    message: result.message || "Đã có lỗi xảy ra."
-                });
+                setNotif({ isOpen: true, type: 'error', message: result.message || "Đã có lỗi xảy ra." });
             }
         } catch (err) {
-            console.error("Error adding user:", err);
-            const serverMsg = err.response?.data?.message || err.response?.data?.error || "Lỗi kết nối server.";
-            setNotif({
-                isOpen: true,
-                type: 'error',
-                message: serverMsg
-            });
+            const serverMsg = err.response?.data?.message || err.response?.data?.error || "Lỗi server.";
+            setNotif({ isOpen: true, type: 'error', message: serverMsg });
         } finally {
             setIsSaving(false);
         }
@@ -147,30 +142,21 @@ const User = () => {
     const handleEditSubmit = async (data) => {
         try {
             setIsSaving(true);
-            const result = await userService.updateUser(data._id, data);
+            const payload = {
+                ...data,
+                isActive: data.isActive === 'true' || data.isActive === true
+            };
+            const result = await userService.updateUser(data._id, payload);
             if (result.success) {
-                setNotif({
-                    isOpen: true,
-                    type: 'success',
-                    message: "Cập nhật người dùng thành công!"
-                });
+                setNotif({ isOpen: true, type: 'success', message: "Cập nhật thành công!" });
                 setIsEditModalOpen(false);
                 fetchUsers();
             } else {
-                setNotif({
-                    isOpen: true,
-                    type: 'error',
-                    message: result.message || "Đã có lỗi xảy ra."
-                });
+                setNotif({ isOpen: true, type: 'error', message: result.message || "Đã có lỗi xảy ra." });
             }
         } catch (err) {
-            console.error("Error updating user:", err);
-            const serverMsg = err.response?.data?.message || err.response?.data?.error || "Lỗi kết nối server.";
-            setNotif({
-                isOpen: true,
-                type: 'error',
-                message: serverMsg
-            });
+            const serverMsg = err.response?.data?.message || err.response?.data?.error || "Lỗi server.";
+            setNotif({ isOpen: true, type: 'error', message: serverMsg });
         } finally {
             setIsSaving(false);
         }
@@ -185,30 +171,14 @@ const User = () => {
         if (!userToDelete) return;
         try {
             setIsDeleting(true);
-            const data = await userService.deleteUser(userToDelete._id);
+            const result = await userService.deleteUser(userToDelete._id);
             setIsDeleteModalOpen(false);
-
-            if (data.success) {
-                setUsers(users.filter(u => u._id !== userToDelete._id));
-                setNotif({
-                    isOpen: true,
-                    type: 'success',
-                    message: `Đã xóa người dùng "${userToDelete.fullname || userToDelete.username}" thành công.`
-                });
-            } else {
-                setNotif({
-                    isOpen: true,
-                    type: 'error',
-                    message: data.message || "Không thể xóa người dùng."
-                });
+            if (result.success) {
+                setNotif({ isOpen: true, type: 'success', message: `Xóa "${userToDelete.fullname || userToDelete.username}" thành công.` });
+                fetchUsers();
             }
         } catch (err) {
-            console.error("Error deleting user:", err);
-            setNotif({
-                isOpen: true,
-                type: 'error',
-                message: "Đã xảy ra lỗi khi kết nối với máy chủ."
-            });
+            setNotif({ isOpen: true, type: 'error', message: "Lỗi khi xóa người dùng." });
         } finally {
             setIsDeleting(false);
             setUserToDelete(null);
@@ -218,9 +188,7 @@ const User = () => {
     const formatDate = (dateStr) => {
         if (!dateStr) return "N/A";
         return new Date(dateStr).toLocaleDateString('vi-VN', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
+            year: 'numeric', month: 'long', day: 'numeric'
         });
     };
 
@@ -242,6 +210,25 @@ const User = () => {
         },
         { name: 'birthday', label: 'Ngày sinh', type: 'date' },
         { name: 'address', label: 'Địa chỉ', type: 'text', fullWidth: true },
+        {
+            name: 'level',
+            label: 'Trình độ',
+            type: 'select',
+            options: [
+                { label: 'Beginner', value: 'Beginner' },
+                { label: 'Intermediate', value: 'Intermediate' },
+                { label: 'Advanced', value: 'Advanced' }
+            ]
+        },
+        {
+            name: 'isActive',
+            label: 'Trạng thái',
+            type: 'select',
+            options: [
+                { label: 'Hoạt động', value: 'true' },
+                { label: 'Khóa', value: 'false' }
+            ]
+        },
         { name: 'password', label: 'Mật khẩu', type: 'password', required: true },
         { name: 'confirmPassword', label: 'Xác nhận mật khẩu', type: 'password', required: true }
     ];
@@ -281,11 +268,7 @@ const User = () => {
             header: "Vai trò",
             key: "role",
             width: "10%",
-            render: (val) => (
-                <span className={`badge badge-${val}`}>
-                    {val}
-                </span>
-            )
+            render: (val) => <span className={`badge badge-${val}`}>{val}</span>
         },
         {
             header: "Trình độ",
@@ -299,11 +282,11 @@ const User = () => {
             )
         },
         {
-            header: "Chức năng",
+            header: "Thao tác",
             key: "_id",
             width: "20%",
             render: (val, row) => (
-                <div className="actions" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                <div className="actions">
                     <button className="action-btn" onClick={() => handleViewDetail(row)} title="Xem chi tiết"><Eye size={16} color="#6366f1" /></button>
                     <button className="action-btn" onClick={() => handleEditClick(row)} title="Chỉnh sửa"><Edit2 size={16} color="#6366f1" /></button>
                     <button className="action-btn" onClick={() => handleDeleteClick(row)} title="Xóa"><Trash2 size={16} color="#ef4444" /></button>
@@ -314,8 +297,6 @@ const User = () => {
 
     return (
         <div className="user-page">
-            {loading && users.length === 0 && <Loading text="Đang tải danh sách người dùng..." />}
-
             <div className="page-header">
                 <h1>Quản lý người dùng</h1>
             </div>
@@ -335,7 +316,7 @@ const User = () => {
 
             <DataTable
                 columns={columns}
-                data={paginatedUsers}
+                data={users}
                 loading={loading}
                 error={error}
                 pagination={{
@@ -408,7 +389,6 @@ const User = () => {
                 )}
             </Modal>
 
-            {/* Add User Modal */}
             <AddModal
                 isOpen={isAddModalOpen}
                 onClose={() => setIsAddModalOpen(false)}
@@ -419,7 +399,6 @@ const User = () => {
                 isLoading={isSaving}
             />
 
-            {/* Edit User Modal */}
             <EditModal
                 isOpen={isEditModalOpen}
                 onClose={() => setIsEditModalOpen(false)}
@@ -433,17 +412,15 @@ const User = () => {
                 isLoading={isSaving}
             />
 
-            {/* Delete Confirm Modal */}
             <ConfirmModal
                 isOpen={isDeleteModalOpen}
                 onClose={() => setIsDeleteModalOpen(false)}
                 onConfirm={handleConfirmDelete}
-                title="Xác nhận xóa người dùng"
-                message={`Bạn có chắc chắn muốn xóa người dùng "${userToDelete?.fullname || userToDelete?.username}"? Hành động này không thể hoàn tác.`}
+                title="Xác nhận xóa"
+                message={`Bạn có chắc muốn xóa người dùng "${userToDelete?.fullname || userToDelete?.username}"?`}
                 isLoading={isDeleting}
             />
 
-            {/* Notification Modal */}
             <NotificationModal
                 isOpen={notif.isOpen}
                 type={notif.type}

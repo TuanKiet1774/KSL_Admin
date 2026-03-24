@@ -115,6 +115,28 @@ const FormBase = ({
                                             onChange={(e) => handleChange(field.name, e.target.value)}
                                             required={field.required}
                                         />
+                                    ) : field.type === 'upload' ? (
+                                        <div className="form-image-upload no-preview">
+                                            <input type="file" id={`file-input-${field.name}`} accept="image/*" style={{ display: 'none' }} onChange={(e) => handleFileChange(field.name, e)} />
+                                            <div className="image-upload-info">
+                                                <input 
+                                                    type="text" 
+                                                    className="form-input image-url-input" 
+                                                    placeholder={field.placeholder || `URL ${field.label}...`} 
+                                                    value={formData[field.name] || ''} 
+                                                    onChange={(e) => handleChange(field.name, e.target.value)} 
+                                                />
+                                                <button 
+                                                    type="button" 
+                                                    className="image-upload-btn" 
+                                                    onClick={() => document.getElementById(`file-input-${field.name}`).click()} 
+                                                    disabled={uploadingField === field.name}
+                                                >
+                                                    {uploadingField === field.name ? <div className="loader-spinner" style={{width: '14px', height: '14px', borderWeight: '2px'}}></div> : <Upload size={16} />} 
+                                                    Tải lên
+                                                </button>
+                                            </div>
+                                        </div>
                                     ) : field.type === 'image' ? (
                                         <div className="form-image-upload">
                                             <div className="image-preview-wrapper">

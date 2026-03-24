@@ -2,9 +2,9 @@ import axios from '../config/axios';
 
 const userService = {
     // Get all users
-    getAllUsers: async () => {
+    getAllUsers: async (params = {}) => {
         try {
-            const response = await axios.get('/api/users');
+            const response = await axios.get('/api/users', { params });
             return response.data;
         } catch (error) {
             throw error;

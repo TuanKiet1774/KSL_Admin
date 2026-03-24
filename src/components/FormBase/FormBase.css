@@ -101,6 +101,11 @@
   padding: 0.5rem 0;
 }
 
+.form-image-upload.no-preview {
+  align-items: stretch;
+  padding: 0;
+}
+
 .image-preview-wrapper {
   width: 110px;
   height: 110px;
