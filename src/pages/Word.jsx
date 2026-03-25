@@ -15,7 +15,8 @@ import topicService from '../services/topicService';
 const Word = () => {
     const [words, setWords] = useState([]);
     const [topics, setTopics] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
+    const [isInitialLoading, setIsInitialLoading] = useState(true);
     const [error, setError] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedTopicId, setSelectedTopicId] = useState('all');
@@ -55,9 +56,19 @@ const Word = () => {
             console.error("Error fetching words/topics:", err);
             setError("Đã xảy ra lỗi khi tải dữ liệu.");
         } finally {
-            setTimeout(() => setLoading(false), 600);
+            setLoading(false);
+            setIsInitialLoading(false);
         }
     };
+
+    // Effect for searchTerm changes - simulate table loading
+    useEffect(() => {
+        if (!isInitialLoading && searchTerm) {
+            setLoading(true);
+            const timer = setTimeout(() => setLoading(false), 400);
+            return () => clearTimeout(timer);
+        }
+    }, [searchTerm]);
 
     const handleAddClick = () => {
         setFormData({
@@ -259,6 +270,10 @@ const Word = () => {
             )
         }
     ];
+
+    if (isInitialLoading) {
+        return <Loading text="Đang tải dữ liệu từ vựng..." />;
+    }
 
     return (
         <div className="word-page">

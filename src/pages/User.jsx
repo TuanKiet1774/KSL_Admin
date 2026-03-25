@@ -13,7 +13,8 @@ import userService from '../services/userService';
 
 const User = () => {
     const [users, setUsers] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
+    const [isInitialLoading, setIsInitialLoading] = useState(true);
     const [error, setError] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
@@ -40,11 +41,18 @@ const User = () => {
     const pageSize = 10;
 
     useEffect(() => {
-        fetchUsers();
+        fetchUsers(true); // pass true for initial load
+    }, []);
+
+    useEffect(() => {
+        if (!isInitialLoading) {
+            fetchUsers(false);
+        }
     }, [currentPage, searchTerm]);
 
-    const fetchUsers = async () => {
+    const fetchUsers = async (initial = false) => {
         try {
+            if (initial) setIsInitialLoading(true);
             setLoading(true);
             const params = {
                 page: currentPage,
@@ -76,6 +84,7 @@ const User = () => {
             setError("Đã xảy ra lỗi khi kết nối với máy chủ.");
         } finally {
             setLoading(false);
+            if (initial) setIsInitialLoading(false);
         }
     };
 
@@ -294,6 +303,10 @@ const User = () => {
             )
         }
     ];
+
+    if (isInitialLoading) {
+        return <Loading text="Đang tải danh sách người dùng..." />;
+    }
 
     return (
         <div className="user-page">

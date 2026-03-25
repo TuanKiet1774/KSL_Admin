@@ -11,7 +11,8 @@ import './style/FeedBack.css';
 
 const Feedback = () => {
     const [feedbacks, setFeedbacks] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
+    const [isInitialLoading, setIsInitialLoading] = useState(true);
     const [error, setError] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
@@ -25,12 +26,11 @@ const Feedback = () => {
 
     const pageSize = 10;
 
-    useEffect(() => {
-        fetchFeedbacks();
-    }, [currentPage, searchTerm]);
 
-    const fetchFeedbacks = async () => {
+
+    const fetchFeedbacks = async (initial = false) => {
         try {
+            if (initial) setIsInitialLoading(true);
             setLoading(true);
             const params = {
                 page: currentPage,
@@ -49,8 +49,21 @@ const Feedback = () => {
             setError("Đã xảy ra lỗi khi kết nối với máy chủ.");
         } finally {
             setLoading(false);
+            if (initial) setIsInitialLoading(false);
         }
     };
+
+    // Effect for initial load
+    useEffect(() => {
+        fetchFeedbacks(true);
+    }, []);
+
+    // Effect for search/pagination changes
+    useEffect(() => {
+        if (!isInitialLoading) {
+            fetchFeedbacks(false);
+        }
+    }, [currentPage, searchTerm]);
 
     const handleViewDetail = (feedback) => {
         setSelectedFeedback(feedback);
@@ -181,6 +194,10 @@ const Feedback = () => {
         (currentPage - 1) * pageSize,
         currentPage * pageSize
     );
+
+    if (isInitialLoading) {
+        return <Loading text="Đang tải danh sách phản hồi..." />;
+    }
 
     return (
         <div className="feedback-page">

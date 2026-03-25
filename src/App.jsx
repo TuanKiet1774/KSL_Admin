@@ -6,7 +6,6 @@ import Login from './pages/Login';
 import Users from './pages/User';
 import Topics from './pages/Topic';
 import Words from './pages/Word';
-import Exams from './pages/Exam';
 import Feedback from './pages/Feedback';
 import Profile from './pages/Profile';
 import './App.css';
@@ -38,7 +37,6 @@ function App() {
                     <Route path="/users" element={<Users />} />
                     <Route path="/topics" element={<Topics />} />
                     <Route path="/words" element={<Words />} />
-                    <Route path="/exams" element={<Exams />} />
                     <Route path="/feedback" element={<Feedback />} />
                     <Route path="/profile" element={<Profile />} />
                   </Routes>

@@ -13,7 +13,8 @@ import topicService from '../services/topicService';
 
 const Topic = () => {
     const [topics, setTopics] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
+    const [isInitialLoading, setIsInitialLoading] = useState(true);
     const [error, setError] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
@@ -47,9 +48,19 @@ const Topic = () => {
             console.error("Error fetching topics:", err);
             setError("Đã xảy ra lỗi khi kết nối với máy chủ.");
         } finally {
-            setTimeout(() => setLoading(false), 600);
+            setLoading(false);
+            setIsInitialLoading(false);
         }
     };
+
+    // Effect for searchTerm changes - simulate table loading
+    useEffect(() => {
+        if (!isInitialLoading && searchTerm) {
+            setLoading(true);
+            const timer = setTimeout(() => setLoading(false), 400);
+            return () => clearTimeout(timer);
+        }
+    }, [searchTerm]);
 
     useEffect(() => {
         setCurrentPage(1);
@@ -284,6 +295,10 @@ const Topic = () => {
             )
         }
     ];
+
+    if (isInitialLoading) {
+        return <Loading text="Đang tải danh sách chủ đề..." />;
+    }
 
     return (
         <div className="topic-page">

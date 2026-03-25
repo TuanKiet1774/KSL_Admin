@@ -53,7 +53,6 @@ const Sidebar = () => {
     { name: 'User', icon: Users, path: '/users' },
     { name: 'Topic', icon: BookOpen, path: '/topics' },
     { name: 'Word', icon: Languages, path: '/words' },
-    { name: 'Exam', icon: FileText, path: '/exams' },
     { name: 'Feedback', icon: MessageSquare, path: '/feedback' },
   ];
 
