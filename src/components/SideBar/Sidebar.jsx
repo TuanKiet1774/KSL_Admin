@@ -8,7 +8,8 @@ import {
   FileText,
   MessageSquare,
   LogOut,
-  ChevronRight
+  ChevronRight,
+  HelpCircle
 } from 'lucide-react';
 import './Sidebar.css';
 import { logout, getProfile } from '../../services/authService';
@@ -53,6 +54,7 @@ const Sidebar = () => {
     { name: 'User', icon: Users, path: '/users' },
     { name: 'Topic', icon: BookOpen, path: '/topics' },
     { name: 'Word', icon: Languages, path: '/words' },
+    { name: 'Question', icon: HelpCircle, path: '/questions' },
     { name: 'Feedback', icon: MessageSquare, path: '/feedback' },
   ];
 

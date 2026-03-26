@@ -1,10 +1,10 @@
 import axios from '../config/axios';
 
 const questionService = {
-    // Get all questions
-    getAllQuestions: async () => {
+    // Get all questions with optional filters
+    getAllQuestions: async (params = {}) => {
         try {
-            const response = await axios.get('/api/questions');
+            const response = await axios.get('/api/questions', { params });
             return response.data;
         } catch (error) {
             throw error;
