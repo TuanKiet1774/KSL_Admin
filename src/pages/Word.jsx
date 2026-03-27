@@ -227,7 +227,7 @@ const Word = () => {
             ],
             required: true 
         },
-        { name: 'media.url', label: 'URL phương tiện', type: 'upload', required: true, fullWidth: true }
+        { name: 'media.url', label: 'Ảnh/Gif/Video', type: 'upload', required: true, fullWidth: true }
     ];
 
     const columns = [

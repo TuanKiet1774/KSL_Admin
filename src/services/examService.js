@@ -1,10 +1,10 @@
 import axios from '../config/axios';
 
 const examService = {
-    // Get all exams
-    getAllExams: async () => {
+    // Get all exams with filters
+    getAllExams: async (params = {}) => {
         try {
-            const response = await axios.get('/api/exams');
+            const response = await axios.get('/api/exams', { params });
             return response.data;
         } catch (error) {
             throw error;
@@ -53,3 +53,4 @@ const examService = {
 };
 
 export default examService;
+

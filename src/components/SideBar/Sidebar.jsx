@@ -55,8 +55,10 @@ const Sidebar = () => {
     { name: 'Topic', icon: BookOpen, path: '/topics' },
     { name: 'Word', icon: Languages, path: '/words' },
     { name: 'Question', icon: HelpCircle, path: '/questions' },
+    { name: 'Exam', icon: FileText, path: '/exams' },
     { name: 'Feedback', icon: MessageSquare, path: '/feedback' },
   ];
+
 
   const getUserAvatar = (user) => {
     if (user?.avatar) return user.avatar;
