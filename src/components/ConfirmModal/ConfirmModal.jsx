@@ -7,7 +7,7 @@ const ConfirmModal = ({ isOpen, onClose, onConfirm, title, message, isLoading = 
   if (!isOpen) return null;
 
   return createPortal(
-    <div className="confirm-modal-overlay" onClick={onClose}>
+    <div className="confirm-modal-overlay">
       <div className="confirm-modal-container" onClick={(e) => e.stopPropagation()}>
         <div className="confirm-modal-content">
           <div className="confirm-icon-wrapper">

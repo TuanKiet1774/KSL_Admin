@@ -18,7 +18,7 @@ const NotificationModal = ({ isOpen, onClose, type = 'success', title, message, 
   const isSuccess = type === 'success';
 
   return createPortal(
-    <div className="notif-modal-overlay" onClick={onClose}>
+    <div className="notif-modal-overlay">
       <div 
         className={`notif-modal-container notif-modal-${type}`} 
         onClick={(e) => e.stopPropagation()}

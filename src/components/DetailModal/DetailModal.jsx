@@ -18,7 +18,7 @@ const DetailModal = ({ isOpen, onClose, title, children, className = "" }) => {
   if (!isOpen) return null;
 
   return createPortal(
-    <div className={`modal-overlay ${className}`} onClick={onClose}>
+    <div className={`modal-overlay ${className}`}>
       <div className="modal-container" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <h2>{title}</h2>

@@ -298,19 +298,8 @@ const Word = () => {
                         onChange={setSearchTerm} 
                         placeholder="Tìm theo tên hoặc mô tả..." 
                     />
-                    <div className="filter-group">
-                        <span className="filter-label">Chủ đề:</span>
-                        <select 
-                            className="filter-select"
-                            value={selectedTopicId} 
-                            onChange={(e) => setSelectedTopicId(e.target.value)}
-                        >
-                            <option value="all">Tất cả chủ đề</option>
-                            {topics.map(topic => (
-                                <option key={topic._id} value={topic._id}>{topic.name}</option>
-                            ))}
-                        </select>
-                    </div>                </div>
+                
+                </div>
 
                 <button className="btn-add" onClick={handleAddClick}>
                     <Plus size={20} />
