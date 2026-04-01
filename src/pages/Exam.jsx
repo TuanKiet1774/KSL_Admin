@@ -26,8 +26,9 @@ const Exam = () => {
     // Filters
     const [searchTerm, setSearchTerm] = useState('');
     const [filterTopic, setFilterTopic] = useState('all');
+    const [totalExams, setTotalExams] = useState(0);
     const [currentPage, setCurrentPage] = useState(1);
-    const pageSize = 8;
+    const pageSize = 10;
 
     // Modals
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
@@ -53,20 +54,37 @@ const Exam = () => {
     const [formData, setFormData] = useState(initialExamState);
 
     useEffect(() => {
-        fetchData();
-        fetchTopicsAndQuestions();
+        fetchInitialData();
     }, []);
+
+    useEffect(() => {
+        if (!isInitialLoading) {
+            fetchData();
+        }
+    }, [currentPage, searchTerm, filterTopic]);
+
+    const fetchInitialData = async () => {
+        try {
+            await fetchTopicsAndQuestions();
+            await fetchData();
+        } catch (err) {
+            console.error("Error fetching initial data:", err);
+        }
+    };
 
     const fetchData = async () => {
         try {
             setLoading(true);
             const params = {
+                page: currentPage,
+                limit: pageSize,
                 search: searchTerm,
                 topicId: filterTopic === 'all' ? undefined : filterTopic
             };
             const response = await examService.getAllExams(params);
             if (response.success) {
                 setExams(response.data || []);
+                setTotalExams(response.total || 0);
             }
         } catch (err) {
             console.error("Error fetching exams:", err);
@@ -80,8 +98,8 @@ const Exam = () => {
     const fetchTopicsAndQuestions = async () => {
         try {
             const [tRes, qRes] = await Promise.all([
-                topicService.getAllTopics(),
-                questionService.getAllQuestions()
+                topicService.getAllTopics({ limit: 1000 }),
+                questionService.getAllQuestions({ limit: 1000 })
             ]);
 
             if (tRes.success) setTopics(tRes.data || []);
@@ -91,16 +109,12 @@ const Exam = () => {
         }
     };
 
-    // Filter logic for main table stays server-side or client-side depending on API behavior
-    // The controller uses pagination, so ideally we should use those params.
-    // For now, I'll filter client-side as per the Question.jsx pattern unless dataset is huge.
-    const filteredExams = exams.filter(e => {
-        const matchesSearch = e.title.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesTopic = filterTopic === 'all' || (e.topicId?._id || e.topicId) === filterTopic;
-        return matchesSearch && matchesTopic;
-    });
+    // Filter change resets to page 1
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm, filterTopic]);
 
-    const paginatedExams = filteredExams.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+    const paginatedExams = exams; // Server-paginated components should just use the fetched list directly
 
     // Handlers
     const handleAddClick = () => {
@@ -277,7 +291,7 @@ const Exam = () => {
                 loading={loading}
                 error={error}
                 pagination={{
-                    total: filteredExams.length,
+                    total: totalExams,
                     pageSize: pageSize,
                     currentPage: currentPage,
                     onPageChange: setCurrentPage

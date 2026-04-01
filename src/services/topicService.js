@@ -2,9 +2,9 @@ import axios from '../config/axios';
 
 const topicService = {
     // Get all topics
-    getAllTopics: async () => {
+    getAllTopics: async (params = {}) => {
         try {
-            const response = await axios.get('/api/topics');
+            const response = await axios.get('/api/topics', { params });
             return response.data;
         } catch (error) {
             throw error;

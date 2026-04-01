@@ -18,6 +18,7 @@ const Topic = () => {
     const [error, setError] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
+    const [totalTopics, setTotalTopics] = useState(0);
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
     const [selectedTopic, setSelectedTopic] = useState(null);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -29,18 +30,25 @@ const Topic = () => {
     const [isSaving, setIsSaving] = useState(false);
     const [notif, setNotif] = useState({ isOpen: false, type: 'success', message: '' });
 
-    const pageSize = 6;
+    const pageSize = 10;
 
     useEffect(() => {
         fetchTopics();
-    }, []);
+    }, [currentPage, searchTerm]);
 
     const fetchTopics = async () => {
         try {
             setLoading(true);
-            const data = await topicService.getAllTopics();
-            if (data.success) {
-                setTopics(data.data);
+            const params = {
+                page: currentPage,
+                limit: pageSize,
+                search: searchTerm
+            };
+            const result = await topicService.getAllTopics(params);
+            
+            if (result.success) {
+                setTopics(result.data || []);
+                setTotalTopics(result.total || 0);
             } else {
                 setError("Không thể tải danh sách chủ đề.");
             }
@@ -53,27 +61,12 @@ const Topic = () => {
         }
     };
 
-    // Effect for searchTerm changes - simulate table loading
-    useEffect(() => {
-        if (!isInitialLoading && searchTerm) {
-            setLoading(true);
-            const timer = setTimeout(() => setLoading(false), 400);
-            return () => clearTimeout(timer);
-        }
-    }, [searchTerm]);
-
+    // Filter change resets to page 1
     useEffect(() => {
         setCurrentPage(1);
     }, [searchTerm]);
 
-    const filteredTopics = topics.filter(topic => 
-        (topic.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (topic.description || "").toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
-    const totalTopics = filteredTopics.length;
-    const startIndex = (currentPage - 1) * pageSize;
-    const paginatedTopics = filteredTopics.slice(startIndex, startIndex + pageSize);
+    const paginatedTopics = topics; // Server-paginated components should just use the fetched list directly
 
     const handleViewDetail = (topic) => {
         setSelectedTopic(topic);

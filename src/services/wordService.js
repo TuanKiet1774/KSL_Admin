@@ -2,9 +2,9 @@ import axios from '../config/axios';
 
 const wordService = {
     // Get all words
-    getAllWords: async () => {
+    getAllWords: async (params = {}) => {
         try {
-            const response = await axios.get('/api/words');
+            const response = await axios.get('/api/words', { params });
             return response.data;
         } catch (error) {
             throw error;

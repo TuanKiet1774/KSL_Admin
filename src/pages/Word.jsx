@@ -21,6 +21,7 @@ const Word = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedTopicId, setSelectedTopicId] = useState('all');
     const [currentPage, setCurrentPage] = useState(1);
+    const [totalWords, setTotalWords] = useState(0);
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
     const [selectedWord, setSelectedWord] = useState(null);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -31,44 +32,60 @@ const Word = () => {
     const [formData, setFormData] = useState({});
     const [isSaving, setIsSaving] = useState(false);
     const [notif, setNotif] = useState({ isOpen: false, type: 'success', message: '' });
-
-    const pageSize = 8;
+    
+    const pageSize = 10;
 
     useEffect(() => {
         fetchData();
+        fetchTopics();
     }, []);
+
+    useEffect(() => {
+        if (!isInitialLoading) {
+            fetchData();
+        }
+    }, [currentPage, searchTerm, selectedTopicId]);
+
+    const fetchTopics = async () => {
+        try {
+            const res = await topicService.getAllTopics({ limit: 1000 });
+            if (res.success) {
+                setTopics(res.data || []);
+            }
+        } catch (err) {
+            console.error("Error fetching topics:", err);
+        }
+    };
 
     const fetchData = async () => {
         try {
             setLoading(true);
-            const [wordsRes, topicsRes] = await Promise.all([
-                wordService.getAllWords(),
-                topicService.getAllTopics()
-            ]);
+            const params = {
+                page: currentPage,
+                limit: pageSize,
+                search: searchTerm,
+                topicId: selectedTopicId === 'all' ? undefined : selectedTopicId
+            };
+            
+            const wordsRes = await wordService.getAllWords(params);
 
             if (wordsRes.success) {
-                setWords(wordsRes.data);
-            }
-            if (topicsRes.success) {
-                setTopics(topicsRes.data);
+                setWords(wordsRes.data || []);
+                setTotalWords(wordsRes.total || 0);
             }
         } catch (err) {
-            console.error("Error fetching words/topics:", err);
-            setError("Đã xảy ra lỗi khi tải dữ liệu.");
+            console.error("Error fetching words:", err);
+            setError("Đã xảy ra lỗi khi tải dữ liệu từ vựng.");
         } finally {
             setLoading(false);
             setIsInitialLoading(false);
         }
     };
 
-    // Effect for searchTerm changes - simulate table loading
+    // Effect for searchTerm - reset to page 1
     useEffect(() => {
-        if (!isInitialLoading && searchTerm) {
-            setLoading(true);
-            const timer = setTimeout(() => setLoading(false), 400);
-            return () => clearTimeout(timer);
-        }
-    }, [searchTerm]);
+        setCurrentPage(1);
+    }, [searchTerm, selectedTopicId]);
 
     const handleAddClick = () => {
         setFormData({
@@ -201,20 +218,13 @@ const Word = () => {
         }
     };
 
-    const filteredWords = words.filter(word => {
-        const matchesSearch = (word.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-                            (word.description || "").toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesTopic = selectedTopicId === 'all' || (word.topicId?._id || word.topicId) === selectedTopicId;
-        return matchesSearch && matchesTopic;
-    });
-
-    const paginatedWords = filteredWords.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+    const paginatedWords = words; // Already paginated from server
 
     const wordFields = [
         { name: 'topicId', label: 'Chủ đề', type: 'select', options: topics.map(t => ({ label: t.name, value: t._id })), required: true, fullWidth: true },
         { name: 'name', label: 'Từ vựng (Tiếng Anh)', type: 'text', required: true, fullWidth: true },
 
-        { name: 'description', label: 'Nghĩa / Mô tả', type: 'textarea', required: true, fullWidth: true },
+        { name: 'description', label: 'Mô tả', type: 'textarea', required: true, fullWidth: true },
         { name: 'exp', label: 'EXP nhận được', type: 'number'},
         { 
             name: 'media.type', 
@@ -288,8 +298,19 @@ const Word = () => {
                         onChange={setSearchTerm} 
                         placeholder="Tìm theo tên hoặc mô tả..." 
                     />
-                    
-                </div>
+                    <div className="filter-group">
+                        <span className="filter-label">Chủ đề:</span>
+                        <select 
+                            className="filter-select"
+                            value={selectedTopicId} 
+                            onChange={(e) => setSelectedTopicId(e.target.value)}
+                        >
+                            <option value="all">Tất cả chủ đề</option>
+                            {topics.map(topic => (
+                                <option key={topic._id} value={topic._id}>{topic.name}</option>
+                            ))}
+                        </select>
+                    </div>                </div>
 
                 <button className="btn-add" onClick={handleAddClick}>
                     <Plus size={20} />
@@ -303,7 +324,7 @@ const Word = () => {
                 loading={loading}
                 error={error}
                 pagination={{
-                    total: filteredWords.length,
+                    total: totalWords,
                     pageSize: pageSize,
                     currentPage: currentPage,
                     onPageChange: setCurrentPage

@@ -11,21 +11,22 @@ const Pagination = ({
 }) => {
   const totalPages = Math.ceil(total / pageSize) || 1;
 
+  const handlePageChange = (page) => {
+    onPageChange(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const handlePrev = () => {
-    if (currentPage > 1) onPageChange(currentPage - 1);
+    if (currentPage > 1) handlePageChange(currentPage - 1);
   };
 
   const handleNext = () => {
-    if (currentPage < totalPages) onPageChange(currentPage + 1);
+    if (currentPage < totalPages) handlePageChange(currentPage + 1);
   };
 
   return (
     <div className="pagination-container">
-      {showInfo && (
-        <div className="pagination-info">
-          Hiển thị <strong>{Math.min(pageSize, total)}</strong> trên tổng số <strong>{total}</strong> bản ghi
-        </div>
-      )}
+      <div style={{ flex: 1 }}></div>
       
       <div className="pagination-actions">
         <button 
@@ -38,19 +39,41 @@ const Pagination = ({
         </button>
 
         <div className="page-numbers">
-          {Array.from({ length: totalPages }).map((_, index) => {
-            const page = index + 1;
-            return (
-              <button
-                key={page}
-                className={`pagination-btn ${currentPage === page ? 'active' : ''}`}
-                onClick={() => onPageChange(page)}
-                type="button"
-              >
-                {page}
-              </button>
-            );
-          })}
+          {(() => {
+            const range = [];
+            const delta = 2; // Number of pages to show before and after current page
+            
+            for (let i = 1; i <= totalPages; i++) {
+              if (
+                i === 1 || 
+                i === totalPages || 
+                (i >= currentPage - delta && i <= currentPage + delta)
+              ) {
+                range.push(i);
+              } else if (
+                i === currentPage - delta - 1 || 
+                i === currentPage + delta + 1
+              ) {
+                range.push('...');
+              }
+            }
+
+            return range.map((page, index) => {
+              if (page === '...') {
+                return <span key={`ellipsis-${index}`} className="pagination-ellipsis">...</span>;
+              }
+              return (
+                <button
+                  key={page}
+                  className={`pagination-btn ${currentPage === page ? 'active' : ''}`}
+                  onClick={() => handlePageChange(page)}
+                  type="button"
+                >
+                  {page}
+                </button>
+              );
+            });
+          })()}
         </div>
 
         <button 

@@ -29,8 +29,9 @@ const Question = () => {
     const [filterType, setFilterType] = useState('all');
     const [filterDifficulty, setFilterDifficulty] = useState('all');
     const [filterTopic, setFilterTopic] = useState('all');
+    const [totalQuestions, setTotalQuestions] = useState(0);
     const [currentPage, setCurrentPage] = useState(1);
-    const pageSize = 8;
+    const pageSize = 10;
 
     // Modals
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
@@ -61,47 +62,62 @@ const Question = () => {
     const [uploadingField, setUploadingField] = useState(null); // 'main-media' or index-media for options
 
     useEffect(() => {
-        fetchData();
+        fetchInitialData();
     }, []);
 
-    const fetchData = async () => {
-        try {
-            setLoading(true);
-            const [qRes, tRes] = await Promise.all([
-                questionService.getAllQuestions(),
-                topicService.getAllTopics()
-            ]);
+    useEffect(() => {
+        if (!isInitialLoading) {
+            fetchQuestions();
+        }
+    }, [currentPage, searchTerm, filterType, filterDifficulty, filterTopic]);
 
-            if (qRes.success) {
-                setQuestions(qRes.data || []);
-            }
+    const fetchInitialData = async () => {
+        try {
+            const tRes = await topicService.getAllTopics({ limit: 1000 });
             if (tRes.success) {
                 setTopics(tRes.data || []);
                 if (tRes.data.length > 0) {
                     setFormData(prev => ({ ...prev, topicId: tRes.data[0]._id }));
                 }
             }
+            await fetchQuestions();
         } catch (err) {
-            console.error("Error fetching data:", err);
-            setError("Đã xảy ra lỗi khi tải dữ liệu.");
+            console.error("Error fetching initial data:", err);
+        }
+    };
+
+    const fetchQuestions = async () => {
+        try {
+            setLoading(true);
+            const params = {
+                page: currentPage,
+                limit: pageSize,
+                search: searchTerm,
+                type: filterType === 'all' ? undefined : filterType,
+                difficulty: filterDifficulty === 'all' ? undefined : filterDifficulty,
+                topicId: filterTopic === 'all' ? undefined : filterTopic
+            };
+            const result = await questionService.getAllQuestions(params);
+            
+            if (result.success) {
+                setQuestions(result.data || []);
+                setTotalQuestions(result.total || 0);
+            }
+        } catch (err) {
+            console.error("Error fetching questions:", err);
+            setError("Đã xảy ra lỗi khi tải danh sách câu hỏi.");
         } finally {
             setLoading(false);
             setIsInitialLoading(false);
         }
     };
 
-    // Filter logic
-    const filteredQuestions = questions.filter(q => {
-        const matchesSearch = q.question.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesType = filterType === 'all' || q.type === filterType;
-        const matchesDiff = filterDifficulty === 'all' || q.difficulty === filterDifficulty;
-        const matchesTopic = filterTopic === 'all' || (q.topicId?._id || q.topicId) === filterTopic;
-        
-        return matchesSearch && matchesType && matchesDiff && matchesTopic;
-    });
+    // Filter change resets to page 1
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm, filterType, filterDifficulty, filterTopic]);
 
-    const totalFiltered = filteredQuestions.length;
-    const paginatedQuestions = filteredQuestions.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+    const paginatedQuestions = questions; // Server-paginated components should just use the fetched list directly
 
     // Handlers
     const handleAddClick = () => {
@@ -333,7 +349,7 @@ const Question = () => {
                 loading={loading}
                 error={error}
                 pagination={{
-                    total: totalFiltered,
+                    total: totalQuestions,
                     pageSize: pageSize,
                     currentPage: currentPage,
                     onPageChange: setCurrentPage

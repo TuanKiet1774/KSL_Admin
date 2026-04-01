@@ -10,6 +10,8 @@
 .pagination-info {
   font-size: 0.875rem;
   color: var(--text-secondary);
+  display: flex;
+  gap: 0.25rem;
 }
 
 .pagination-actions {
@@ -54,5 +56,16 @@
 
 .page-numbers {
   display: flex;
+  align-items: center;
   gap: 0.5rem;
+}
+
+.pagination-ellipsis {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
 }
