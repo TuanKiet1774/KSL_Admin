@@ -47,6 +47,10 @@ const Sidebar = () => {
     };
 
     fetchUserData();
+
+    // Listen for profile updates from the Profile page
+    window.addEventListener('userProfileUpdate', fetchUserData);
+    return () => window.removeEventListener('userProfileUpdate', fetchUserData);
   }, []);
 
   const menuItems = [

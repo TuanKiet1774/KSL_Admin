@@ -259,16 +259,12 @@ const Topic = () => {
             )
         },
         {
-            header: "EXP/Từ vựng",
+            header: "Kinh nghiệm",
             key: "expRequired",
             width: "15%",
             render: (val, row) => (
                 <div className="topic-stats-cell">
-                    <div className="stat-row">
-                        <BookOpen size={14} />
-                        <span>{row.words?.length || 0} từ</span>
-                    </div>
-                    <div className="stat-row">
+                    <div className="stat-row" style={{ justifyContent: 'center' }}>
                         <Award size={14} />
                         <span>{val} EXP</span>
                     </div>
