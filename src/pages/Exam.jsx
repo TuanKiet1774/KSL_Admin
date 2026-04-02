@@ -109,14 +109,12 @@ const Exam = () => {
         }
     };
 
-    // Filter change resets to page 1
     useEffect(() => {
         setCurrentPage(1);
     }, [searchTerm, filterTopic]);
 
-    const paginatedExams = exams; // Server-paginated components should just use the fetched list directly
+    const paginatedExams = exams; 
 
-    // Handlers
     const handleAddClick = () => {
         setIsEditing(false);
         setFormData({

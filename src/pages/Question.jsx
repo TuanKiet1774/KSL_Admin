@@ -60,7 +60,7 @@ const Question = () => {
         time: 30
     };
     const [formData, setFormData] = useState(initialQuestionState);
-    const [uploadingField, setUploadingField] = useState(null); // 'main-media' or index-media for options
+    const [uploadingField, setUploadingField] = useState(null); 
 
     useEffect(() => {
         fetchInitialData();
@@ -113,14 +113,12 @@ const Question = () => {
         }
     };
 
-    // Filter change resets to page 1
     useEffect(() => {
         setCurrentPage(1);
     }, [searchTerm, filterType, filterDifficulty, filterTopic]);
 
-    const paginatedQuestions = questions; // Server-paginated components should just use the fetched list directly
+    const paginatedQuestions = questions; 
 
-    // Handlers
     const handleAddClick = () => {
         setIsEditing(false);
         setFormData({
@@ -173,7 +171,6 @@ const Question = () => {
     const handleFormSubmit = async (e) => {
         if (e) e.preventDefault();
         
-        // Basic validation
         if (!formData.question.trim()) {
             setNotif({ isOpen: true, type: 'error', message: 'Vui lòng nhập nội dung câu hỏi.' });
             return;
@@ -288,7 +285,6 @@ const Question = () => {
         setFormData({ ...formData, options: newOptions });
     };
 
-    // Columns for DataTable
     const columns = [
         {
             header: "Câu hỏi",
