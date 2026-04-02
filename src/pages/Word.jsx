@@ -11,6 +11,7 @@ import EditModal from '../components/EditModal/EditModal';
 import './style/Word.css';
 import wordService from '../services/wordService';
 import topicService from '../services/topicService';
+import { getYouTubeEmbedUrl, isYouTubeUrl } from '../utils/media';
 
 const Word = () => {
     const [words, setWords] = useState([]);
@@ -120,8 +121,8 @@ const Word = () => {
                 return "GIF phải có định dạng .gif";
             }
         } else if (media.type === 'video') {
-            if (extension !== 'mp4') {
-                return "Video phải có định dạng .mp4";
+            if (!isYouTubeUrl(media.url) && extension !== 'mp4') {
+                return "Video phải có định dạng .mp4 hoặc link YouTube hợp lệ.";
             }
         }
         return null;
@@ -330,7 +331,20 @@ const Word = () => {
                     <div className="word-detail-view">
                         <div className="detail-media">
                             {selectedWord.media?.type === 'video' ? (
-                                <video src={selectedWord.media.url} controls className="detail-video" />
+                                isYouTubeUrl(selectedWord.media.url) ? (
+                                    <iframe 
+                                        width="100%" 
+                                        height="300" 
+                                        src={getYouTubeEmbedUrl(selectedWord.media.url)} 
+                                        title="YouTube video player" 
+                                        frameBorder="0" 
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                        allowFullScreen
+                                        style={{borderRadius: '12px'}}
+                                    ></iframe>
+                                ) : (
+                                    <video src={selectedWord.media.url} controls className="detail-video" />
+                                )
                             ) : (
                                 <img src={selectedWord.media?.url || 'https://via.placeholder.com/300?text=No+Image'} alt={selectedWord.name} className="detail-img" />
                             )}

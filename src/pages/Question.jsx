@@ -15,6 +15,7 @@ import './style/Question.css';
 import questionService from '../services/questionService';
 import topicService from '../services/topicService';
 import { uploadToImgBB } from '../utils/upload';
+import { getYouTubeEmbedUrl, isYouTubeUrl } from '../utils/media';
 
 const Question = () => {
     // State
@@ -377,7 +378,20 @@ const Question = () => {
                         {selectedQuestion.media?.url && (
                             <div className="detail-media-container">
                                 {selectedQuestion.media.type === 'video' ? (
-                                    <video src={selectedQuestion.media.url} controls />
+                                    isYouTubeUrl(selectedQuestion.media.url) ? (
+                                        <iframe 
+                                            width="100%" 
+                                            height="315" 
+                                            src={getYouTubeEmbedUrl(selectedQuestion.media.url)} 
+                                            title="YouTube video player" 
+                                            frameBorder="0" 
+                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                            allowFullScreen
+                                            style={{borderRadius: '12px'}}
+                                        ></iframe>
+                                    ) : (
+                                        <video src={selectedQuestion.media.url} controls />
+                                    )
                                 ) : (
                                     <img src={selectedQuestion.media.url} alt="Question media" />
                                 )}
@@ -519,6 +533,28 @@ const Question = () => {
                                     {uploadingField === 'main' ? <div className="loader-spinner" style={{width: '20px', height: '20px'}}></div> : <Upload size={18} />}
                                 </button>
                             </div>
+
+                            {/* Media Preview inside form */}
+                            {formData.media.url && formData.media.type !== 'none' && (
+                                <div style={{marginTop: '1rem', borderRadius: '12px', overflow: 'hidden', border: '1px solid #e5e7eb', background: '#f9fafb', maxWidth: '400px'}}>
+                                    {formData.media.type === 'video' ? (
+                                        isYouTubeUrl(formData.media.url) ? (
+                                            <iframe 
+                                                width="100%" 
+                                                height="225" 
+                                                src={getYouTubeEmbedUrl(formData.media.url)} 
+                                                title="YouTube video player" 
+                                                frameBorder="0" 
+                                                allowFullScreen
+                                            ></iframe>
+                                        ) : (
+                                            <video src={formData.media.url} controls style={{width: '100%', maxHeight: '225px'}} />
+                                        )
+                                    ) : (
+                                        <img src={formData.media.url} alt="Preview" style={{width: '100%', maxHeight: '225px', objectFit: 'contain', display: 'block'}} />
+                                    )}
+                                </div>
+                            )}
                         </div>
                     </div>
 
@@ -633,6 +669,22 @@ const Question = () => {
                                         {option.media.type === 'image' && option.media.url && (
                                             <div style={{marginTop: '0.5rem', borderRadius: '8px', overflow: 'hidden', border: '1px solid #e5e7eb', width: 'fit-content'}}>
                                                 <img src={option.media.url} alt="Option preview" style={{height: '60px', display: 'block'}} />
+                                            </div>
+                                        )}
+                                        {option.media.type === 'video' && option.media.url && (
+                                            <div style={{marginTop: '0.5rem', borderRadius: '8px', overflow: 'hidden', border: '1px solid #e5e7eb', width: '100%', maxWidth: '300px'}}>
+                                                {isYouTubeUrl(option.media.url) ? (
+                                                    <iframe 
+                                                        width="100%" 
+                                                        height="170" 
+                                                        src={getYouTubeEmbedUrl(option.media.url)} 
+                                                        title="YouTube video player" 
+                                                        frameBorder="0" 
+                                                        allowFullScreen
+                                                    ></iframe>
+                                                ) : (
+                                                    <video src={option.media.url} controls style={{width: '100%', maxHeight: '170px'}} />
+                                                )}
                                             </div>
                                         )}
                                     </div>
