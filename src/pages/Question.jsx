@@ -212,7 +212,7 @@ const Question = () => {
                     message: isEditing ? 'Cập nhật câu hỏi thành công!' : 'Thêm câu hỏi mới thành công!' 
                 });
                 setIsFormModalOpen(false);
-                fetchData();
+                fetchQuestions();
             }
         } catch (err) {
             setNotif({ 
@@ -484,9 +484,9 @@ const Question = () => {
 
                     {/* Media */}
                     <div className="form-section">
-                        <div className="section-title"><ImageIcon size={18} /> Hình ảnh / Video minh họa</div>
+                        <div className="section-title"><ImageIcon size={18} /> Hình ảnh / Video minh họa cho câu hỏi</div>
                         <div className="form-group full-width">
-                            <label className="form-label">Phương tiện (Loại / URL / Tải lên)</label>
+                            <label className="form-label">Ảnh/Gif/Video</label>
                             <div style={{display: 'flex', gap: '0.75rem', alignItems: 'center'}}>
                                 <select 
                                     className="form-select" 
@@ -504,7 +504,7 @@ const Question = () => {
                                     className="form-input" 
                                     value={formData.media.url} 
                                     onChange={(e) => setFormData({...formData, media: {...formData.media, url: e.target.value}})} 
-                                    placeholder="URL hình ảnh hoặc video minh họa..." 
+                                    placeholder="Nhập URL hoặc tải file lên" 
                                     disabled={formData.media.type === 'none'}
                                 />
                                 <input type="file" id="main-media-upload" hidden onChange={(e) => handleFileUpload('main', e.target.files[0])} />
