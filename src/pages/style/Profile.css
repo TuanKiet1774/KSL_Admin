@@ -419,6 +419,30 @@
 
 @keyframes spin { to { transform: rotate(360deg); } }
 
+/* Radio button styling for Profile */
+.profile-radio-group {
+  display: flex;
+  gap: 4rem;
+  padding: 0.5rem 0;
+}
+
+.profile-radio-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.profile-radio-label input[type="radio"] {
+  width: 1.25rem;
+  height: 1.25rem;
+  accent-color: #6366f1;
+  cursor: pointer;
+}
+
 /* Responsiveness */
 @media (max-width: 1024px) {
   .profile-header-content { flex-direction: column; align-items: center; text-align: center; gap: 2rem; }

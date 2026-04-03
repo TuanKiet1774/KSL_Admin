@@ -20,7 +20,8 @@ const Profile = () => {
         phone: '',
         address: '',
         birthday: '',
-        avatar: ''
+        avatar: '',
+        gender: ''
     });
 
     useEffect(() => {
@@ -36,7 +37,8 @@ const Profile = () => {
                         phone: userData.phone || userData.phoneNumber || userData.phone_number || '',
                         address: userData.address || '',
                         birthday: userData.birthday ? userData.birthday.split('T')[0] : '',
-                        avatar: userData.avatar || userData.avatar_url || ''
+                        avatar: userData.avatar || userData.avatar_url || '',
+                        gender: userData.gender || 'Nam'
                     });
                 }
             } catch (error) {
@@ -374,6 +376,40 @@ const Profile = () => {
                                     />
                                 ) : (
                                     <span className="detail-value">{user?.address || 'N/A'}</span>
+                                )}
+                            </div>
+                        </div>
+                        <div className="detail-card">
+                            <div className="profile-icon">
+                                <User size={24} />
+                            </div>
+                            <div className="detail-info">
+                                <span className="detail-label">Giới tính</span>
+                                {isEditing ? (
+                                    <div className="profile-radio-group">
+                                        <label className="profile-radio-label">
+                                            <input 
+                                                type="radio" 
+                                                name="gender" 
+                                                value="Nam"
+                                                checked={formData.gender === 'Nam' || !formData.gender}
+                                                onChange={handleInputChange}
+                                            />
+                                            <span>Nam</span>
+                                        </label>
+                                        <label className="profile-radio-label">
+                                            <input 
+                                                type="radio" 
+                                                name="gender" 
+                                                value="Nữ"
+                                                checked={formData.gender === 'Nữ'}
+                                                onChange={handleInputChange}
+                                            />
+                                            <span>Nữ</span>
+                                        </label>
+                                    </div>
+                                ) : (
+                                    <span className="detail-value">{user?.gender || 'Nam'}</span>
                                 )}
                             </div>
                         </div>

@@ -145,6 +145,22 @@ const FormBase = ({
                                             <option value="">-- Chọn {field.label} --</option>
                                             {field.options?.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
                                         </select>
+                                    ) : field.type === 'radio' ? (
+                                        <div className="form-radio-group">
+                                            {field.options?.map(opt => (
+                                                <label key={opt.value} className="form-radio-label">
+                                                    <input 
+                                                        type="radio" 
+                                                        name={field.name} 
+                                                        value={opt.value}
+                                                        checked={formData[field.name] === opt.value}
+                                                        onChange={(e) => handleChange(field.name, e.target.value)}
+                                                        required={field.required}
+                                                    />
+                                                    <span className="radio-text">{opt.label}</span>
+                                                </label>
+                                            ))}
+                                        </div>
                                     ) : field.type === 'textarea' ? (
                                         <textarea 
                                             className="form-textarea"

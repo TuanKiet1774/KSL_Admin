@@ -111,7 +111,7 @@ const User = () => {
         setFormData({
             role: 'user',
             level: 'Beginner',
-            isActive: 'true'
+            gender: 'Nam'
         });
         setIsAddModalOpen(true);
     };
@@ -120,7 +120,7 @@ const User = () => {
         setFormData({
             ...user,
             birthday: user.birthday ? user.birthday.split('T')[0] : '',
-            isActive: user.isActive?.toString() || 'true'
+            gender: user.gender || 'Nam'
         });
         setIsEditModalOpen(true);
     };
@@ -129,8 +129,7 @@ const User = () => {
         try {
             setIsSaving(true);
             const payload = {
-                ...data,
-                isActive: data.isActive === 'true' || data.isActive === true
+                ...data
             };
             const result = await userService.createUser(payload);
             if (result.success) {
@@ -152,8 +151,7 @@ const User = () => {
         try {
             setIsSaving(true);
             const payload = {
-                ...data,
-                isActive: data.isActive === 'true' || data.isActive === true
+                ...data
             };
             const result = await userService.updateUser(data._id, payload);
             if (result.success) {
@@ -210,17 +208,15 @@ const User = () => {
         { name: 'email', label: 'Email', type: 'email', required: true },
         { name: 'phone', label: 'Số điện thoại', type: 'text' },
         {
-            name: 'role',
-            label: 'Vai trò',
-            type: 'select',
+            name: 'gender',
+            label: 'Giới tính',
+            type: 'radio',
             options: [
-                { label: 'Admin', value: 'admin' },
-                { label: 'User', value: 'user' }
+                { label: 'Nam', value: 'Nam' },
+                { label: 'Nữ', value: 'Nữ' }
             ],
             required: true
         },
-        { name: 'birthday', label: 'Ngày sinh', type: 'date' },
-        { name: 'address', label: 'Địa chỉ', type: 'text', fullWidth: true },
         {
             name: 'level',
             label: 'Trình độ',
@@ -232,14 +228,17 @@ const User = () => {
             ]
         },
         {
-            name: 'isActive',
-            label: 'Trạng thái',
+            name: 'role',
+            label: 'Vai trò',
             type: 'select',
             options: [
-                { label: 'Hoạt động', value: 'true' },
-                { label: 'Khóa', value: 'false' }
-            ]
+                { label: 'Admin', value: 'admin' },
+                { label: 'User', value: 'user' }
+            ],
+            required: true
         },
+        { name: 'birthday', label: 'Ngày sinh', type: 'date' },
+        { name: 'address', label: 'Địa chỉ', type: 'text', fullWidth: true },
         { name: 'password', label: 'Mật khẩu', type: 'password', required: true },
         { name: 'confirmPassword', label: 'Xác nhận mật khẩu', type: 'password', required: true }
     ];
@@ -274,6 +273,12 @@ const User = () => {
                     <div style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>{row.phone}</div>
                 </div>
             )
+        },
+        {
+            header: "Giới tính",
+            key: "gender",
+            width: "10%",
+            render: (val) => val || "Nam"
         },
         {
             header: "Vai trò",
@@ -379,6 +384,10 @@ const User = () => {
                                 <span className="info-label">Địa chỉ</span>
                                 <span className="info-value">{selectedUser.address || "N/A"}</span>
                             </div>
+                             <div className="info-item">
+                                 <span className="info-label">Giới tính</span>
+                                 <span className="info-value">{selectedUser.gender || "Nam"}</span>
+                             </div>
                             <div className="info-item">
                                 <span className="info-label">Ngày sinh</span>
                                 <span className="info-value">{formatDate(selectedUser.birthday)}</span>
