@@ -219,6 +219,7 @@ const Topic = () => {
             required: true 
         },
         { name: 'expRequired', label: 'EXP yêu cầu', type: 'number'},
+        { name: 'totalWord', label: 'Số lượng từ', type: 'number', readOnly: true },
         { name: 'description', label: 'Mô tả', type: 'textarea', fullWidth: true }
     ];
 
@@ -243,6 +244,9 @@ const Topic = () => {
                         <span className="topic-name">{row.name}</span>
                         <div className="topic-meta">
                             <span className="topic-level-badge">{row.level}</span>
+                            <span className="topic-word-count-badge" style={{ marginLeft: '10px', fontSize: '0.75rem', background: '#e0e7ff', color: '#4338ca', padding: '2px 8px', borderRadius: '10px' }}>
+                                {row.totalWord || 0} từ
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -346,6 +350,16 @@ const Topic = () => {
                         </div>
 
                         <div className="topic-detail-content">
+                            <div className="detail-meta-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
+                                <div className="detail-meta-item">
+                                    <span style={{ color: '#64748b', fontSize: '0.85rem' }}>Số lượng từ vựng:</span>
+                                    <div style={{ fontWeight: 700, fontSize: '1.1rem' }}>{selectedTopic.totalWord || 0} từ</div>
+                                </div>
+                                <div className="detail-meta-item">
+                                    <span style={{ color: '#64748b', fontSize: '0.85rem' }}>Kinh nghiệm yêu cầu:</span>
+                                    <div style={{ fontWeight: 700, fontSize: '1.1rem' }}>{selectedTopic.expRequired || 0} EXP</div>
+                                </div>
+                            </div>
                             <div className="detail-section">
                                 <h4>Mô tả chủ đề</h4>
                                 <p>{selectedTopic.description || "Chưa có mô tả chi tiết cho chủ đề này."}</p>
