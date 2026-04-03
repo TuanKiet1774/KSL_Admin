@@ -24,12 +24,50 @@ axiosInstance.interceptors.response.use(
   (response) => {
     return response;
   },
-  (error) => {
-    if (error.response && error.response.status === 401) {
-      // Clear localStorage and redirect to login
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      window.location.href = '/login';
+  async (error) => {
+    const originalRequest = error.config;
+    
+    if (error.response && error.response.status === 401 && !originalRequest._retry) {
+      const isMultipleSession = error.response.data?.code === 'SESSION_EXPIRED';
+      
+      if (isMultipleSession) {
+        // Tài khoản đang đăng nhập ở nơi khác - Cưỡng chế đăng xuất
+        localStorage.removeItem('token');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('user');
+        window.location.href = '/login?reason=session_expired';
+        return Promise.reject(error);
+      }
+
+      // Nếu là lỗi token hết hạn (không phải do đăng nhập nơi khác), thử refresh
+      originalRequest._retry = true;
+      const refreshToken = localStorage.getItem('refreshToken');
+      
+      if (refreshToken) {
+        try {
+          // Dùng axios thuần để tránh interceptor này lặp vô tận
+          const response = await axios.post(`${URI_API}/api/auth/refresh-token`, { refreshToken });
+          
+          if (response.data.success) {
+            const { accessToken, refreshToken: newRefreshToken } = response.data;
+            localStorage.setItem('token', accessToken);
+            localStorage.setItem('refreshToken', newRefreshToken);
+            
+            // Cập nhật header và thực hiện lại request cũ
+            originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+            return axiosInstance(originalRequest);
+          }
+        } catch (refreshError) {
+          // Refresh token cũng hết hạn hoặc bị thu hồi (đăng nhập nơi khác)
+          localStorage.removeItem('token');
+          localStorage.removeItem('refreshToken');
+          localStorage.removeItem('user');
+          window.location.href = '/login';
+          return Promise.reject(refreshError);
+        }
+      } else {
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }

@@ -27,14 +27,58 @@ const FormBase = ({
         }
     }, [isOpen, initialData]);
 
+    const validateField = (name, value, currentData) => {
+        const field = fields.find(f => f.name === name);
+        if (!field) return "";
+
+        // Only validate if value is not empty or if it was previously touched/error exists
+        // However, for "immediate" requirement, we validate if there's a value
+        if (field.required && !value) {
+            return `${field.label} không được để trống.`;
+        }
+
+        if (field.type === 'email' && value) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(value)) {
+                return "Email không đúng định dạng. Vui lòng kiểm tra lại.";
+            }
+        }
+
+        if (field.type === 'password' && value) {
+            const password = value;
+            const hasUpperCase = /[A-Z]/.test(password);
+            const hasNumber = /[0-9]/.test(password);
+            const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+            const noWhitespace = !/\s/.test(password);
+            
+            if (password.length < 6) {
+                return "Mật khẩu phải có ít nhất 6 ký tự.";
+            } else if (!hasUpperCase || !hasNumber || !hasSpecialChar || !noWhitespace) {
+                return "Mật khẩu phải chứa ít nhất 1 ký tự hoa, 1 ký số, 1 ký tự đặc biệt.";
+            }
+        }
+
+        if (name === 'confirmPassword' && value) {
+            if (value !== currentData.password) {
+                return "Mật khẩu xác nhận không khớp.";
+            }
+        }
+
+        return "";
+    };
+
     const handleChange = (name, value) => {
-        setFormData(prev => ({ ...prev, [name]: value }));
-        if (errors[name]) {
-            setErrors(prev => {
-                const newErrors = { ...prev };
-                delete newErrors[name];
-                return newErrors;
-            });
+        const updatedData = { ...formData, [name]: value };
+        setFormData(updatedData);
+        
+        // Validate current field
+        const error = validateField(name, value, updatedData);
+        setErrors(prev => ({ ...prev, [name]: error }));
+
+        // If password changes, re-validate confirmPassword
+        if (name === 'password' && formData.confirmPassword) {
+            const confirmError = value === formData.confirmPassword ? "" : "Mật khẩu xác nhận không khớp.";
+            setErrors(prev => ({ ...prev, confirmPassword: confirmError }));
         }
     };
 
@@ -60,20 +104,14 @@ const FormBase = ({
     const validate = () => {
         const newErrors = {};
         fields.forEach(field => {
+            const error = validateField(field.name, formData[field.name], formData);
+            if (error) {
+                newErrors[field.name] = error;
+            }
             if (field.required && !formData[field.name]) {
                 newErrors[field.name] = `${field.label} không được để trống.`;
             }
-            if (field.type === 'email' && formData[field.name]) {
-                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                if (!emailRegex.test(formData[field.name])) {
-                    newErrors[field.name] = "Email không hợp lệ.";
-                }
-            }
         });
-
-        if (formData.password && formData.confirmPassword && formData.password !== formData.confirmPassword) {
-            newErrors.confirmPassword = "Mật khẩu xác nhận không khớp.";
-        }
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -154,20 +192,80 @@ const FormBase = ({
                                             </div>
                                         </div>
                                     ) : (
-                                        <div className="password-input-wrapper">
-                                            <input
-                                                type={field.type === 'password' ? (showPasswords[field.name] ? 'text' : 'password') : (field.type || 'text')}
-                                                className={`form-input ${field.readOnly ? 'input-readonly' : ''}`}
-                                                placeholder={field.placeholder || `Nhập ${field.label}...`}
-                                                value={formData[field.name] || ''}
-                                                onChange={(e) => handleChange(field.name, e.target.value)}
-                                                required={field.required}
-                                                readOnly={field.readOnly}
-                                            />
-                                            {field.type === 'password' && (
-                                                <button type="button" className="password-toggle-btn" onClick={() => setShowPasswords(prev => ({ ...prev, [field.name]: !prev[field.name] }))}>
-                                                    {showPasswords[field.name] ? <EyeOff size={18} /> : <Eye size={18} />}
-                                                </button>
+                                        <div className="input-with-addons">
+                                            {field.type === 'date' ? (
+                                                <div className="masked-date-input-wrapper">
+                                                    <input
+                                                        type="text"
+                                                        className={`form-input masked-date-input ${field.readOnly ? 'input-readonly' : ''}`}
+                                                        placeholder="dd/mm/yyyy"
+                                                        value={formData[field.name] ? (() => {
+                                                            const val = formData[field.name];
+                                                            if (val.includes('-')) {
+                                                                const [y, m, d] = val.split('-');
+                                                                return `${d}/${m}/${y}`;
+                                                            }
+                                                            return val;
+                                                        })() : ''}
+                                                        onChange={(e) => {
+                                                            let val = e.target.value.replace(/\D/g, '').substring(0, 8);
+                                                            if (val.length >= 3 && val.length <= 4) {
+                                                                val = `${val.slice(0, 2)}/${val.slice(2)}`;
+                                                            } else if (val.length >= 5) {
+                                                                val = `${val.slice(0, 2)}/${val.slice(2, 4)}/${val.slice(4)}`;
+                                                            }
+                                                            
+                                                            if (val.length === 10) {
+                                                                const [d, m, y] = val.split('/');
+                                                                handleChange(field.name, `${y}-${m}-${d}`);
+                                                            } else {
+                                                                setFormData(prev => ({ ...prev, [field.name]: val }));
+                                                            }
+                                                        }}
+                                                        onBlur={(e) => {
+                                                            const val = e.target.value;
+                                                            if (val && val.length === 10) {
+                                                                const [d, m, y] = val.split('/');
+                                                                const date = new Date(`${y}-${m}-${d}`);
+                                                                if (isNaN(date.getTime()) || date.getDate() !== parseInt(d)) {
+                                                                    setErrors(prev => ({ ...prev, [field.name]: "Ngày sinh không hợp lệ." }));
+                                                                } else {
+                                                                    handleChange(field.name, `${y}-${m}-${d}`);
+                                                                }
+                                                            } else if (val && val.length > 0) {
+                                                                setErrors(prev => ({ ...prev, [field.name]: "Định dạng ngày phải là dd/mm/yyyy." }));
+                                                            }
+                                                        }}
+                                                        readOnly={field.readOnly}
+                                                    />
+                                                    <div className="calendar-icon-wrapper">
+                                                        <input 
+                                                            type="date" 
+                                                            className="hidden-date-picker"
+                                                            value={formData[field.name] && formData[field.name].includes('-') ? formData[field.name] : ''}
+                                                            onChange={(e) => handleChange(field.name, e.target.value)}
+                                                            tabIndex="-1"
+                                                        />
+                                                        <div className="calendar-trigger-icon">📅</div>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <div className="password-input-wrapper">
+                                                    <input
+                                                        type={field.type === 'password' ? (showPasswords[field.name] ? 'text' : 'password') : (field.type || 'text')}
+                                                        className={`form-input ${field.readOnly ? 'input-readonly' : ''}`}
+                                                        placeholder={field.placeholder || `Nhập ${field.label}...`}
+                                                        value={formData[field.name] || ''}
+                                                        onChange={(e) => handleChange(field.name, e.target.value)}
+                                                        required={field.required}
+                                                        readOnly={field.readOnly}
+                                                    />
+                                                    {field.type === 'password' && (
+                                                        <button type="button" className="password-toggle-btn" onClick={() => setShowPasswords(prev => ({ ...prev, [field.name]: !prev[field.name] }))}>
+                                                            {showPasswords[field.name] ? <EyeOff size={18} /> : <Eye size={18} />}
+                                                        </button>
+                                                    )}
+                                                </div>
                                             )}
                                         </div>
                                     )}

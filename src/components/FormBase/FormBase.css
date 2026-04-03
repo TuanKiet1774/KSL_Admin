@@ -314,3 +314,50 @@
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+
+/* Masked Date Input Styles */
+.masked-date-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.masked-date-input {
+  width: 100%;
+  padding-right: 3rem !important; /* Space for the calendar icon */
+}
+
+.calendar-icon-wrapper {
+  position: absolute;
+  right: 0.75rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.hidden-date-picker {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  pointer-events: all;
+  z-index: 10;
+}
+
+.calendar-trigger-icon {
+  font-size: 1.25rem;
+  z-index: 5;
+}
+
+.input-with-addons {
+  width: 100%;
+}
+
+
+

@@ -41,7 +41,7 @@ const User = () => {
     const pageSize = 10;
 
     useEffect(() => {
-        fetchUsers(true); // pass true for initial load
+        fetchUsers(true); 
     }, []);
 
     useEffect(() => {
@@ -196,9 +196,11 @@ const User = () => {
 
     const formatDate = (dateStr) => {
         if (!dateStr) return "N/A";
-        return new Date(dateStr).toLocaleDateString('vi-VN', {
-            year: 'numeric', month: 'long', day: 'numeric'
-        });
+        const date = new Date(dateStr);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
     };
 
     const userFields = [

@@ -1,16 +1,22 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { login } from '../services/authService';
-import { User, Lock, Eye, EyeOff, LogIn } from 'lucide-react';
+import { User, Lock, Eye, EyeOff, LogIn, AlertCircle } from 'lucide-react';
 import './style/Login.css';
 
 const Login = () => {
+    const location = useLocation();
+    const queryParams = new URLSearchParams(location.search);
+    const reason = queryParams.get('reason');
+    
     const [formData, setFormData] = useState({
         emailOrUsername: '',
         password: ''
     });
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
+    
+    // Initial error state: show message if session expired
+    const [error, setError] = useState(reason === 'session_expired' ? 'Tài khoản của bạn đang đăng nhập trên thiết bị khác' : '');
     const [showPassword, setShowPassword] = useState(false);
     
     const navigate = useNavigate();
@@ -40,7 +46,8 @@ const Login = () => {
             if (response.success) {
                 // Store only user object, not the whole response
                 localStorage.setItem('user', JSON.stringify(response.data));
-                localStorage.setItem('token', response.data.token);
+                localStorage.setItem('token', response.data.accessToken);
+                localStorage.setItem('refreshToken', response.data.refreshToken);
                 navigate('/');
                 window.location.reload(); 
             }

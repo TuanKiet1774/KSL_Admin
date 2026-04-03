@@ -34,7 +34,7 @@ const Dashboard = () => {
 
   const { userCount = 0, topicCount = 0, wordCount = 0, feedbackCount = 0 } = stats || {};
   const total = userCount + topicCount + wordCount + feedbackCount;
-  
+
   // Handlers for visual chart heights
   const maxCount = Math.max(userCount, topicCount, wordCount, feedbackCount, 1);
   const getBarHeight = (count) => (count / maxCount) * 100;
@@ -68,10 +68,7 @@ const Dashboard = () => {
               <div className="stat-icon"><Users size={28} /></div>
               <div className="stat-info">
                 <span className="stat-label">Người dùng</span>
-                <span className="stat-value">{userCount.toLocaleString()}</span>
-                <div style={{ fontSize: '0.75rem', color: '#10b981', marginTop: '0.25rem', display: 'flex', alignItems: 'center' }}>
-                  <TrendingUp size={12} style={{ marginRight: '4px' }} /> +12% tháng này
-                </div>
+                <span className="stat-value" style={{ color: '#6366f1', alignItems: 'center', margin: 'auto' }}>{userCount.toLocaleString()}</span>
               </div>
             </div>
 
@@ -79,8 +76,7 @@ const Dashboard = () => {
               <div className="stat-icon"><BookOpen size={28} /></div>
               <div className="stat-info">
                 <span className="stat-label">Chủ đề</span>
-                <span className="stat-value">{topicCount.toLocaleString()}</span>
-                <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '0.25rem' }}>Các gói học tập</div>
+                <span className="stat-value" style={{ color: '#f34d28ff', alignItems: 'center', margin: 'auto' }}>{topicCount.toLocaleString()}</span>
               </div>
             </div>
 
@@ -88,10 +84,7 @@ const Dashboard = () => {
               <div className="stat-icon"><Award size={28} /></div>
               <div className="stat-info">
                 <span className="stat-label">Từ vựng</span>
-                <span className="stat-value">{wordCount.toLocaleString()}</span>
-                <div style={{ fontSize: '0.75rem', color: '#6366f1', marginTop: '0.25rem', display: 'flex', alignItems: 'center' }}>
-                  Cập nhật liên tục
-                </div>
+                <span className="stat-value" style={{ color: '#1fd70bff', alignItems: 'center', margin: 'auto' }}>{wordCount.toLocaleString()}</span>
               </div>
             </div>
 
@@ -99,8 +92,7 @@ const Dashboard = () => {
               <div className="stat-icon"><MessageSquare size={28} /></div>
               <div className="stat-info">
                 <span className="stat-label">Phản hồi</span>
-                <span className="stat-value">{feedbackCount.toLocaleString()}</span>
-                <div style={{ fontSize: '0.75rem', color: '#f59e0b', marginTop: '0.25rem' }}>{feedbackCount > 0 ? 'Cần xem xét' : 'Chưa có mới'}</div>
+                <span className="stat-value" style={{ color: '#ef9f44ff', alignItems: 'center', margin: 'auto' }}>{feedbackCount.toLocaleString()}</span>
               </div>
             </div>
           </div>
@@ -137,22 +129,22 @@ const Dashboard = () => {
               <div className="visual-ring-container">
                 <svg width="240" height="240" className="visual-ring">
                   <circle cx="120" cy="120" r="90" fill="none" stroke="#f1f5f9" strokeWidth="12" />
-                  
+
                   {/* Words segment */}
-                  <circle 
-                    cx="120" cy="120" r="90" 
-                    fill="none" stroke="#10b981" 
-                    strokeWidth="12" 
+                  <circle
+                    cx="120" cy="120" r="90"
+                    fill="none" stroke="#10b981"
+                    strokeWidth="12"
                     strokeDasharray={`${wordPerc} ${circumference}`}
                     strokeDashoffset="0"
                     className="visual-progress"
                   />
-                  
+
                   {/* User segment offset */}
-                  <circle 
-                    cx="120" cy="120" r="90" 
-                    fill="none" stroke="#6366f1" 
-                    strokeWidth="12" 
+                  <circle
+                    cx="120" cy="120" r="90"
+                    fill="none" stroke="#6366f1"
+                    strokeWidth="12"
                     strokeDasharray={`${userPerc} ${circumference}`}
                     strokeDashoffset={`-${wordPerc}`}
                     className="visual-progress"

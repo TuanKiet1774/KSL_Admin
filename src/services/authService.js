@@ -12,27 +12,39 @@ export const login = async (emailOrUsername, password) => {
 
 export const logout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('refreshToken');
     localStorage.removeItem('user');
     window.location.href = '/login';
 };
 
+export const refreshAccessToken = async () => {
+    const refreshToken = localStorage.getItem('refreshToken');
+    if (!refreshToken) throw new Error("No refresh token");
+
+    try {
+        const res = await axios.post('/api/auth/refresh-token', { refreshToken });
+        if (res.data.success) {
+            localStorage.setItem('token', res.data.accessToken);
+            localStorage.setItem('refreshToken', res.data.refreshToken);
+            return res.data.accessToken;
+        }
+    } catch (error) {
+        logout();
+        throw error;
+    }
+};
+
 export const getProfile = async () => {
     try {
-        // Backend dùng ID từ token decode qua middleware
         const response = await axios.get('/api/auth/profile');
         const resData = response.data;
-        
-        // Tự động bóc tách dữ liệu: Ưu tiên resData.data, sau đó đến resData.user, cuối cùng là chính nó
         if (resData.success && resData.data) {
-            // Trường hợp backend trả về { success: true, data: { username, ... } }
             return resData.data;
         }
         if (resData.user) {
-            // Trường hợp backend trả về { user: { username, ... } }
             return resData.user;
         }
         if (resData.data && resData.data.user) {
-             // Trường hợp backend lồng sâu: { data: { user: { ... } } }
             return resData.data.user;
         }
         
