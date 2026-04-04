@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Eye, Plus, Trash2, Edit2, BookOpen, Layers, Award } from 'lucide-react';
+import { Eye, Plus, Trash2, Edit2, BookOpen, Layers, Award, X } from 'lucide-react';
 import Loading from '../components/Loading/Loading';
 import DataTable from '../components/DataTable/DataTable';
 import SearchBox from '../components/SearchBox/SearchBox';
@@ -29,12 +29,21 @@ const Topic = () => {
     const [formData, setFormData] = useState({});
     const [isSaving, setIsSaving] = useState(false);
     const [notif, setNotif] = useState({ isOpen: false, type: 'success', message: '' });
+    const [previewImage, setPreviewImage] = useState(null);
 
     const pageSize = 10;
 
     useEffect(() => {
         fetchTopics();
     }, [currentPage, searchTerm]);
+    
+    useEffect(() => {
+        if (previewImage) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+    }, [previewImage]);
 
     const fetchTopics = async () => {
         try {
@@ -219,7 +228,7 @@ const Topic = () => {
             required: true 
         },
         { name: 'expRequired', label: 'EXP yêu cầu', type: 'number'},
-        { name: 'totalWord', label: 'Số lượng từ', type: 'number', readOnly: true },
+        // { name: 'totalWord', label: 'Số lượng từ', type: 'number', readOnly: true },
         { name: 'description', label: 'Mô tả', type: 'textarea', fullWidth: true }
     ];
 
@@ -238,6 +247,8 @@ const Topic = () => {
                         src={row.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(row.name)}&background=random&color=fff`}
                         alt={row.name}
                         className="topic-thumbnail"
+                        style={{ cursor: 'zoom-in' }}
+                        onClick={() => setPreviewImage(row.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(row.name)}&background=random&color=fff`)}
                         onError={(e) => e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(row.name)}&background=random&color=fff`}
                     />
                     <div className="topic-details">
@@ -340,6 +351,8 @@ const Topic = () => {
                                 src={selectedTopic.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(selectedTopic.name)}&background=random&color=fff`}
                                 alt={selectedTopic.name}
                                 className="detail-hero-img"
+                                style={{ cursor: 'zoom-in' }}
+                                onClick={() => setPreviewImage(selectedTopic.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(selectedTopic.name)}&background=random&color=fff`)}
                             />
                             <div className="hero-overlay">
                                 <div className="hero-meta-tags">
@@ -409,6 +422,18 @@ const Topic = () => {
                 onClose={() => setNotif({ ...notif, isOpen: false })}
                 autoCloseTime={3000}
             />
+
+            {/* Image Preview Overlay */}
+            {previewImage && (
+                <div className="image-preview-overlay" onClick={() => setPreviewImage(null)}>
+                    <button className="close-preview" onClick={(e) => { e.stopPropagation(); setPreviewImage(null); }}>
+                        <X size={24} />
+                    </button>
+                    <div className="preview-content" onClick={(e) => e.stopPropagation()}>
+                        <img src={previewImage} alt="Large Preview" />
+                    </div>
+                </div>
+            )}
         </div>
 
     );

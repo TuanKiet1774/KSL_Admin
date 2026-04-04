@@ -27,7 +27,9 @@ axiosInstance.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
     
-    if (error.response && error.response.status === 401 && !originalRequest._retry) {
+    const isAuthRequest = originalRequest.url && (originalRequest.url.includes('/api/auth/login') || originalRequest.url.includes('/api/auth/refresh-token'));
+    
+    if (error.response && error.response.status === 401 && !isAuthRequest && !originalRequest._retry) {
       const isMultipleSession = error.response.data?.code === 'SESSION_EXPIRED';
       
       if (isMultipleSession) {

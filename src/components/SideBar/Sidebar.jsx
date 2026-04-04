@@ -71,6 +71,16 @@ const Sidebar = () => {
     return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=6366f1&color=fff`;
   };
 
+  const handleLogout = () => {
+    // Clear tokens and user data first
+    localStorage.removeItem('token');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('user');
+    
+    // Navigate to splash with logout mode
+    navigate('/splash', { state: { mode: 'logout' } });
+  };
+
   return (
     <>
       <aside className="sidebar">
@@ -114,7 +124,7 @@ const Sidebar = () => {
             <ChevronRight size={16} className="chevron-icon" />
           </div>
 
-          <button className="logout-btn" onClick={logout}>
+          <button className="logout-btn" onClick={handleLogout}>
             <LogOut size={20} />
             <span>Logout</span>
           </button>

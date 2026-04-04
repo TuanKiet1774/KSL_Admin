@@ -44,6 +44,7 @@ const Question = () => {
     const [isEditing, setIsEditing] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [notif, setNotif] = useState({ isOpen: false, type: 'success', message: '' });
+    const [previewImage, setPreviewImage] = useState(null);
 
     // Form Data
     const initialQuestionState = {
@@ -71,6 +72,14 @@ const Question = () => {
             fetchQuestions();
         }
     }, [currentPage, searchTerm, filterType, filterDifficulty, filterTopic]);
+    
+    useEffect(() => {
+        if (previewImage) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+    }, [previewImage]);
 
     const fetchInitialData = async () => {
         try {
@@ -389,7 +398,12 @@ const Question = () => {
                                         <video src={selectedQuestion.media.url} controls />
                                     )
                                 ) : (
-                                    <img src={selectedQuestion.media.url} alt="Question media" />
+                                    <img 
+                                        src={selectedQuestion.media.url} 
+                                        alt="Question media" 
+                                        onClick={() => setPreviewImage(selectedQuestion.media.url)}
+                                        style={{ cursor: 'zoom-in' }}
+                                    />
                                 )}
                             </div>
                         )}
@@ -408,7 +422,13 @@ const Question = () => {
                                                 {opt.media.type === 'video' ? (
                                                     <Video size={16} color="#9ca3af" />
                                                 ) : (
-                                                    <img src={opt.media.url} alt="Option media" className="option-mini-img" />
+                                                    <img 
+                                                        src={opt.media.url} 
+                                                        alt="Option media" 
+                                                        className="option-mini-img" 
+                                                        onClick={() => setPreviewImage(opt.media.url)}
+                                                        style={{ cursor: 'zoom-in' }}
+                                                    />
                                                 )}
                                             </div>
                                         )}
@@ -723,6 +743,18 @@ const Question = () => {
                 message={notif.message}
                 onClose={() => setNotif({ ...notif, isOpen: false })}
             />
+
+            {/* Image Preview Overlay */}
+            {previewImage && (
+                <div className="image-preview-overlay" onClick={() => setPreviewImage(null)}>
+                    <button className="close-preview" onClick={(e) => { e.stopPropagation(); setPreviewImage(null); }}>
+                        <X size={24} />
+                    </button>
+                    <div className="preview-content" onClick={(e) => e.stopPropagation()}>
+                        <img src={previewImage} alt="Large Preview" />
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

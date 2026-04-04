@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Eye, Plus, Trash2, Edit2, BookOpen, Layers, Award, Image as ImageIcon, Film, MousePointer } from 'lucide-react';
+import { Eye, Plus, Trash2, Edit2, BookOpen, Layers, Award, Image as ImageIcon, Film, MousePointer, X } from 'lucide-react';
 import Loading from '../components/Loading/Loading';
 import DataTable from '../components/DataTable/DataTable';
 import SearchBox from '../components/SearchBox/SearchBox';
@@ -33,6 +33,7 @@ const Word = () => {
     const [formData, setFormData] = useState({});
     const [isSaving, setIsSaving] = useState(false);
     const [notif, setNotif] = useState({ isOpen: false, type: 'success', message: '' });
+    const [previewImage, setPreviewImage] = useState(null);
     
     const pageSize = 10;
 
@@ -46,6 +47,14 @@ const Word = () => {
             fetchData();
         }
     }, [currentPage, searchTerm, selectedTopicId]);
+    
+    useEffect(() => {
+        if (previewImage) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+    }, [previewImage]);
 
     const fetchTopics = async () => {
         try {
@@ -223,7 +232,7 @@ const Word = () => {
 
     const wordFields = [
         { name: 'topicId', label: 'Chủ đề', type: 'select', options: topics.map(t => ({ label: t.name, value: t._id })), required: true, fullWidth: true },
-        { name: 'name', label: 'Từ vựng (Tiếng Anh)', type: 'text', required: true, fullWidth: true },
+        { name: 'name', label: 'Từ vựng', type: 'text', required: true, fullWidth: true },
 
         { name: 'description', label: 'Mô tả', type: 'textarea', required: true, fullWidth: true },
         { name: 'exp', label: 'EXP nhận được', type: 'number'},
@@ -249,7 +258,7 @@ const Word = () => {
             render: (val, row) => (
                 <div className="word-info">
                     {row.media?.url ? (
-                        <div className="word-media-preview">
+                        <div className="word-media-preview" onClick={() => setPreviewImage(row.media.url)} style={{ cursor: 'zoom-in' }}>
                             {row.media.type === 'video' ? <Film size={20} /> : <img src={row.media.url} alt={val} className="word-thumb" />}
                         </div>
                     ) : (
@@ -297,7 +306,7 @@ const Word = () => {
                     <SearchBox 
                         value={searchTerm} 
                         onChange={setSearchTerm} 
-                        placeholder="Tìm theo tên hoặc mô tả..." 
+                        placeholder="Tìm theo tên, mô tả hoặc chủ đề..." 
                     />
                 
                 </div>
@@ -346,7 +355,13 @@ const Word = () => {
                                     <video src={selectedWord.media.url} controls className="detail-video" />
                                 )
                             ) : (
-                                <img src={selectedWord.media?.url || 'https://via.placeholder.com/300?text=No+Image'} alt={selectedWord.name} className="detail-img" />
+                                <img 
+                                    src={selectedWord.media?.url || 'https://via.placeholder.com/300?text=No+Image'} 
+                                    alt={selectedWord.name} 
+                                    className="detail-img" 
+                                    onClick={() => setPreviewImage(selectedWord.media?.url)}
+                                    style={{ cursor: 'zoom-in' }}
+                                />
                             )}
                         </div>
                         <div className="detail-info">
@@ -403,6 +418,18 @@ const Word = () => {
                 message={notif.message}
                 onClose={() => setNotif({ ...notif, isOpen: false })}
             />
+
+            {/* Image Preview Overlay */}
+            {previewImage && (
+                <div className="image-preview-overlay" onClick={() => setPreviewImage(null)}>
+                    <button className="close-preview" onClick={(e) => { e.stopPropagation(); setPreviewImage(null); }}>
+                        <X size={24} />
+                    </button>
+                    <div className="preview-content" onClick={(e) => e.stopPropagation()}>
+                        <img src={previewImage} alt="Large Preview" />
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
