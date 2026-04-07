@@ -36,7 +36,7 @@ const Topic = () => {
     useEffect(() => {
         fetchTopics();
     }, [currentPage, searchTerm]);
-    
+
     useEffect(() => {
         if (previewImage) {
             document.body.style.overflow = 'hidden';
@@ -54,7 +54,7 @@ const Topic = () => {
                 search: searchTerm
             };
             const result = await topicService.getAllTopics(params);
-            
+
             if (result.success) {
                 setTopics(result.data || []);
                 setTotalTopics(result.total || 0);
@@ -104,7 +104,7 @@ const Topic = () => {
                 expRequired: Number(data.expRequired) || 0,
                 isLocked: data.isLocked === 'true' || data.isLocked === true
             };
-            
+
             const result = await topicService.createTopic(payload);
             if (result.success) {
                 setNotif({
@@ -216,18 +216,18 @@ const Topic = () => {
         { name: 'image', label: 'Ảnh minh họa', type: 'image', fullWidth: true },
         { name: 'name', label: 'Tên chủ đề', type: 'text', required: true, fullWidth: true },
 
-        { 
-            name: 'level', 
-            label: 'Trình độ', 
-            type: 'select', 
+        {
+            name: 'level',
+            label: 'Trình độ',
+            type: 'select',
             options: [
                 { label: 'Beginner', value: 'Beginner' },
                 { label: 'Intermediate', value: 'Intermediate' },
                 { label: 'Advanced', value: 'Advanced' }
             ],
-            required: true 
+            required: true
         },
-        { name: 'expRequired', label: 'EXP yêu cầu', type: 'number'},
+        { name: 'expRequired', label: 'EXP yêu cầu', type: 'number' },
         // { name: 'totalWord', label: 'Số lượng từ', type: 'number', readOnly: true },
         { name: 'description', label: 'Mô tả', type: 'textarea', fullWidth: true }
     ];
@@ -346,14 +346,6 @@ const Topic = () => {
             >
                 {selectedTopic && (
                     <div className="topic-detail-view">
-                        <div className="detail-header-full">
-                            <h3 className="detail-title">{selectedTopic.name}</h3>
-                            <div className="detail-meta">
-                                <span className="badge badge-level"><Layers size={14} /> {selectedTopic.level}</span>
-                                <span className="badge badge-count"><BookOpen size={14} /> {selectedTopic.totalWord || 0} từ</span>
-                            </div>
-                        </div>
-
                         <div className="detail-body-layout">
                             <div className="detail-media-side">
                                 <div className="detail-media-container">
@@ -365,17 +357,25 @@ const Topic = () => {
                             </div>
 
                             <div className="detail-info-side">
-                                <div className="detail-section">
-                                    <h4 className="detail-label">Mô tả chủ đề</h4>
-                                    <div className="detail-description-box">
-                                        <p>{selectedTopic.description || "Chưa có mô tả chi tiết cho chủ đề này."}</p>
-                                    </div>
-                                </div>
+                                <h3 className="detail-title">{selectedTopic.name}</h3>
 
-                                <div className="detail-footer-stats">
-                                    <div className="stat-box">
-                                        <span className="stat-label">EXP YÊU CẦU</span>
-                                        <span className="stat-value">{selectedTopic.expRequired || 0} EXP</span>
+                                <div className="detail-section">
+                                    <h4 className="detail-label">Mô tả & Thông số</h4>
+                                    <div className="detail-info-group">
+                                        <div className="detail-description-box">
+                                            <p>{selectedTopic.description || "Chưa có mô tả chi tiết cho chủ đề này."}</p>
+                                        </div>
+                                        <div className="detail-stats-footer">
+                                            <div className="detail-stat-box">
+                                                <span className="stat-label">TRÌNH ĐỘ: {selectedTopic.level}</span>
+                                            </div>
+                                            <div className="detail-stat-box">
+                                                <span className="stat-label">SỐ LƯỢNG TỪ: {selectedTopic.totalWord || 0} TỪ</span>
+                                            </div>
+                                            <div className="detail-stat-box">
+                                                <span className="stat-label">EXP YÊU CẦU: {selectedTopic.expRequired || 0} EXP</span>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

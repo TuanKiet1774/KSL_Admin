@@ -118,21 +118,21 @@
 .word-detail-view {
   display: flex;
   flex-direction: row;
-  gap: 2.5rem;
+  gap: 1.5rem;
   align-items: stretch;
 }
 
 .detail-media {
-  width: 320px;
+  width: 280px;
   flex-shrink: 0;
   aspect-ratio: 1 / 1;
-  border-radius: 20px;
+  border-radius: 16px;
   overflow: hidden;
   background: #f8fafc;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.1);
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05);
   border: 1px solid #f1f5f9;
   height: auto;
 }
@@ -148,15 +148,15 @@
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  padding: 0.5rem 0;
+  padding: 0;
 }
 
 .detail-info h3 {
-  font-size: 2.25rem;
+  font-size: 2rem;
   font-weight: 800;
   color: #0f172a;
-  margin-bottom: 0.75rem;
-  letter-spacing: -0.03em;
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.02em;
   background: linear-gradient(135deg, #0f172a 0%, #334155 100%);
   background-clip: text;
   -webkit-background-clip: text;
@@ -166,17 +166,17 @@
 .detail-meta {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem;
-  margin-bottom: 2rem;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
 }
 
 .detail-topic {
   background: var(--primary-light);
   color: var(--primary);
-  padding: 6px 14px;
+  padding: 4px 12px;
   border-radius: 999px;
   font-weight: 700;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -186,10 +186,10 @@
 .detail-exp {
   background: #fff1f2;
   color: #e11d48;
-  padding: 6px 14px;
+  padding: 4px 12px;
   border-radius: 999px;
   font-weight: 700;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -198,17 +198,17 @@
 
 .detail-desc {
   background: #f8fafc;
-  padding: 1.5rem;
+  padding: 1.25rem;
   border-radius: 16px;
   border: 1px solid #f1f5f9;
   flex-grow: 1;
 }
 
 .detail-desc h4 {
-  font-size: 0.875rem;
+  font-size: 0.8rem;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  margin-bottom: 0.75rem;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
   color: #64748b;
   font-weight: 700;
 }
@@ -216,7 +216,7 @@
 .detail-desc p {
   color: #334155;
   line-height: 1.7;
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   margin: 0;
 }
 
