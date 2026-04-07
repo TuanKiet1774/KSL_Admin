@@ -323,6 +323,18 @@
 /* Detail view */
 .question-detail-view {
     display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.detail-header-full {
+    width: 100%;
+    border-bottom: 2px solid #f1f5f9;
+    padding-bottom: 1.5rem;
+}
+
+.detail-body-layout {
+    display: flex;
     flex-direction: row;
     gap: 2.5rem;
     align-items: stretch;
@@ -356,27 +368,10 @@
     object-fit: cover;
 }
 
-.media-placeholder {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 1rem;
-    color: #94a3b8;
-    font-weight: 600;
-    font-size: 0.9rem;
-}
-
 .detail-info-side {
     flex: 1;
     display: flex;
     flex-direction: column;
-}
-
-.detail-header {
-    border-bottom: none;
-    padding-bottom: 0;
-    margin-bottom: 1.5rem;
 }
 
 .detail-question-text {
@@ -389,11 +384,14 @@
 }
 
 .question-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
     margin-bottom: 0.5rem;
 }
 
 .question-meta .badge {
-    padding: 6px 12px;
+    padding: 6px 14px;
     border-radius: 999px;
     font-size: 0.75rem;
     display: flex;
@@ -419,20 +417,63 @@
 }
 
 .detail-options-list {
+    display: flex;
+    flex-direction: column;
     gap: 0.5rem;
 }
 
 .detail-option-item {
-    padding: 0.875rem 1.25rem;
+    padding: 1rem 1.25rem;
     background: #f8fafc;
     border: 1px solid #f1f5f9;
     border-radius: 12px;
     transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
 }
 
 .detail-option-item.is-correct {
     background: #f0fdf4;
     border-color: #10b981;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.08);
+}
+
+.option-prefix {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #64748b;
+    min-width: 25px;
+}
+
+.is-correct .option-prefix {
+    color: #10b981;
+}
+
+.detail-option-text {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #1e293b;
+    flex: 1;
+}
+
+.option-media-end {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.option-mini-img {
+    height: 60px; /* Adjusting slightly for better balance with text */
+    width: 60px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.correct-badge-icon {
+    color: #10b981;
 }
 
 .detail-footer-stats {
@@ -482,7 +523,7 @@
         width: 100%;
     }
 
-    .question-detail-view {
+    .detail-body-layout {
         flex-direction: column;
         gap: 1.5rem;
     }
@@ -502,5 +543,8 @@
     }
     .detail-option-item {
         text-align: left;
+    }
+    .detail-header-full {
+        text-align: center;
     }
 }

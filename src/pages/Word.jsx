@@ -359,8 +359,6 @@ const Word = () => {
                                     src={selectedWord.media?.url || 'https://via.placeholder.com/300?text=No+Image'} 
                                     alt={selectedWord.name} 
                                     className="detail-img" 
-                                    onClick={() => setPreviewImage(selectedWord.media?.url)}
-                                    style={{ cursor: 'zoom-in' }}
                                 />
                             )}
                         </div>

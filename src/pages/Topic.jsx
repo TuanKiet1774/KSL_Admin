@@ -346,36 +346,38 @@ const Topic = () => {
             >
                 {selectedTopic && (
                     <div className="topic-detail-view">
-                        <div className="topic-detail-hero">
-                            <img
-                                src={selectedTopic.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(selectedTopic.name)}&background=random&color=fff`}
-                                alt={selectedTopic.name}
-                                className="detail-hero-img"
-                                style={{ cursor: 'zoom-in' }}
-                                onClick={() => setPreviewImage(selectedTopic.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(selectedTopic.name)}&background=random&color=fff`)}
-                            />
-                            <div className="hero-overlay">
-                                <div className="hero-meta-tags">
-                                    <span className="hero-level">{selectedTopic.level}</span>
-                                </div>
-                                <h2>{selectedTopic.name}</h2>
+                        <div className="detail-header-full">
+                            <h3 className="detail-title">{selectedTopic.name}</h3>
+                            <div className="detail-meta">
+                                <span className="badge badge-level"><Layers size={14} /> {selectedTopic.level}</span>
+                                <span className="badge badge-count"><BookOpen size={14} /> {selectedTopic.totalWord || 0} từ</span>
                             </div>
                         </div>
 
-                        <div className="topic-detail-content">
-                            <div className="detail-meta-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
-                                <div className="detail-meta-item">
-                                    <span style={{ color: '#64748b', fontSize: '0.85rem' }}>Số lượng từ vựng:</span>
-                                    <div style={{ fontWeight: 700, fontSize: '1.1rem' }}>{selectedTopic.totalWord || 0} từ</div>
-                                </div>
-                                <div className="detail-meta-item">
-                                    <span style={{ color: '#64748b', fontSize: '0.85rem' }}>Kinh nghiệm yêu cầu:</span>
-                                    <div style={{ fontWeight: 700, fontSize: '1.1rem' }}>{selectedTopic.expRequired || 0} EXP</div>
+                        <div className="detail-body-layout">
+                            <div className="detail-media-side">
+                                <div className="detail-media-container">
+                                    <img
+                                        src={selectedTopic.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(selectedTopic.name)}&background=random&color=fff`}
+                                        alt={selectedTopic.name}
+                                    />
                                 </div>
                             </div>
-                            <div className="detail-section">
-                                <h4>Mô tả chủ đề</h4>
-                                <p>{selectedTopic.description || "Chưa có mô tả chi tiết cho chủ đề này."}</p>
+
+                            <div className="detail-info-side">
+                                <div className="detail-section">
+                                    <h4 className="detail-label">Mô tả chủ đề</h4>
+                                    <div className="detail-description-box">
+                                        <p>{selectedTopic.description || "Chưa có mô tả chi tiết cho chủ đề này."}</p>
+                                    </div>
+                                </div>
+
+                                <div className="detail-footer-stats">
+                                    <div className="stat-box">
+                                        <span className="stat-label">EXP YÊU CẦU</span>
+                                        <span className="stat-value">{selectedTopic.expRequired || 0} EXP</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

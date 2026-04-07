@@ -151,125 +151,139 @@
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
-/* Topic Detail Styles */
+/* Topic Detail Styles (Updated) */
 .topic-detail-view {
   display: flex;
   flex-direction: column;
+  gap: 2rem;
 }
 
-.topic-detail-hero {
-  position: relative;
+.detail-header-full {
   width: 100%;
-  height: 250px;
+  border-bottom: 2px solid #f1f5f9;
+  padding-bottom: 1.5rem;
+}
+
+.detail-body-layout {
+  display: flex;
+  flex-direction: row;
+  gap: 2.5rem;
+  align-items: stretch;
+}
+
+.detail-media-side {
+  width: 320px;
+  flex-shrink: 0;
+}
+
+.detail-media-container {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background: #f8fafc;
   border-radius: 20px;
   overflow: hidden;
-  margin-bottom: 2rem;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+  border: 1px solid #f1f5f9;
 }
 
-.detail-hero-img {
+.detail-media-container img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.hero-overlay {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 2rem;
-  background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
-  color: white;
+.detail-info-side {
+  flex: 1;
   display: flex;
   flex-direction: column;
 }
 
+.detail-title {
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 1rem;
+  letter-spacing: -0.02em;
+}
 
-.hero-meta-tags {
+.detail-meta {
   display: flex;
   gap: 0.75rem;
-  margin-bottom: 0.5rem;
 }
 
-.hero-level {
-  font-size: 0.8rem;
-  font-weight: 800;
-  color: white;
-  background: var(--primary);
-  padding: 4px 12px;
-  border-radius: 6px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+.badge {
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
-.hero-lock {
-  font-size: 0.8rem;
-  font-weight: 800;
-  color: white;
-  background: #ef4444;
-  padding: 4px 12px;
-  border-radius: 6px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.hero-overlay h2 {
-  font-size: 2rem;
-  font-weight: 800;
-  margin: 0.25rem 0 0 0;
-}
-
-.topic-detail-content {
-  padding: 0 1rem;
-}
+.badge-level { background: var(--primary-light); color: var(--primary); }
+.badge-count { background: #f0f9ff; color: #0369a1; }
 
 .detail-section {
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
 }
 
-.detail-section h4 {
-  font-size: 1.125rem;
-  font-weight: 700;
-  color: #0f172a;
+.detail-label {
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #64748b;
   margin-bottom: 0.75rem;
-  border-bottom: 2px solid var(--primary-light);
-  display: inline-block;
-  padding-bottom: 0.25rem;
+  font-weight: 700;
 }
 
-.detail-section p {
-  color: #475569;
-  line-height: 1.6;
-}
-
-.detail-stats-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1rem;
-}
-
-.stat-card {
+.detail-description-box {
   background: #f8fafc;
   padding: 1.25rem;
   border-radius: 16px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid #f1f5f9;
+}
+
+.detail-description-box p {
+  color: #334155;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.detail-footer-stats {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: auto;
+  padding-top: 1.5rem;
+  border-top: 1px solid #f1f5f9;
+}
+
+.stat-box {
+  background: #f8fafc;
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  min-width: 120px;
 }
 
 .stat-label {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 700;
-  text-transform: uppercase;
   color: #94a3b8;
-  letter-spacing: 0.025em;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.25rem;
+  text-transform: uppercase;
 }
 
 .stat-value {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #0f172a;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #1e293b;
 }
 
 @keyframes fadeIn {
@@ -277,9 +291,27 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 900px) {
   .topic-controls {
     flex-direction: column;
     align-items: stretch;
+  }
+  .topic-detail-view {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  .detail-media-side {
+    width: 100%;
+    max-width: 320px;
+    margin: 0 auto;
+  }
+  .detail-info-side {
+    text-align: center;
+  }
+  .detail-meta {
+    justify-content: center;
+  }
+  .detail-footer-stats {
+    justify-content: center;
   }
 }
