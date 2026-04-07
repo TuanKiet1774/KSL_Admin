@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { 
-    Plus, Search, Edit2, Trash2, Eye, 
-    HelpCircle, CheckCircle, List, Image as ImageIcon, Video, Clock, 
+import {
+    Plus, Search, Edit2, Trash2, Eye,
+    HelpCircle, CheckCircle, List, Image as ImageIcon, Video, Clock,
     Star, Info, PlusCircle, MinusCircle, Check, AlertCircle, X, Save, Upload,
     Box, Layers, BookOpen, Target
 } from 'lucide-react';
@@ -24,7 +24,7 @@ const Question = () => {
     const [loading, setLoading] = useState(false);
     const [isInitialLoading, setIsInitialLoading] = useState(true);
     const [error, setError] = useState(null);
-    
+
     // Filters
     const [searchTerm, setSearchTerm] = useState('');
     const [filterType, setFilterType] = useState('all');
@@ -61,7 +61,7 @@ const Question = () => {
         time: 30
     };
     const [formData, setFormData] = useState(initialQuestionState);
-    const [uploadingField, setUploadingField] = useState(null); 
+    const [uploadingField, setUploadingField] = useState(null);
 
     useEffect(() => {
         fetchInitialData();
@@ -72,7 +72,7 @@ const Question = () => {
             fetchQuestions();
         }
     }, [currentPage, searchTerm, filterType, filterDifficulty, filterTopic]);
-    
+
     useEffect(() => {
         if (previewImage) {
             document.body.style.overflow = 'hidden';
@@ -108,7 +108,7 @@ const Question = () => {
                 topicId: filterTopic === 'all' ? undefined : filterTopic
             };
             const result = await questionService.getAllQuestions(params);
-            
+
             if (result.success) {
                 setQuestions(result.data || []);
                 setTotalQuestions(result.total || 0);
@@ -126,7 +126,7 @@ const Question = () => {
         setCurrentPage(1);
     }, [searchTerm, filterType, filterDifficulty, filterTopic]);
 
-    const paginatedQuestions = questions; 
+    const paginatedQuestions = questions;
 
     const handleAddClick = () => {
         setIsEditing(false);
@@ -179,7 +179,7 @@ const Question = () => {
 
     const handleFormSubmit = async (e) => {
         if (e) e.preventDefault();
-        
+
         if (!formData.question.trim()) {
             setNotif({ isOpen: true, type: 'error', message: 'Vui lòng nhập nội dung câu hỏi.' });
             return;
@@ -213,19 +213,19 @@ const Question = () => {
             }
 
             if (response.success) {
-                setNotif({ 
-                    isOpen: true, 
-                    type: 'success', 
-                    message: isEditing ? 'Cập nhật câu hỏi thành công!' : 'Thêm câu hỏi mới thành công!' 
+                setNotif({
+                    isOpen: true,
+                    type: 'success',
+                    message: isEditing ? 'Cập nhật câu hỏi thành công!' : 'Thêm câu hỏi mới thành công!'
                 });
                 setIsFormModalOpen(false);
                 fetchQuestions();
             }
         } catch (err) {
-            setNotif({ 
-                isOpen: true, 
-                type: 'error', 
-                message: err.response?.data?.message || 'Đã có lỗi xảy ra.' 
+            setNotif({
+                isOpen: true,
+                type: 'error',
+                message: err.response?.data?.message || 'Đã có lỗi xảy ra.'
             });
         } finally {
             setIsSaving(false);
@@ -237,7 +237,7 @@ const Question = () => {
         try {
             setUploadingField(optionIndex !== null ? `opt-${optionIndex}` : 'main');
             const url = await uploadToImgBB(file);
-            
+
             if (optionIndex !== null) {
                 const newOptions = [...formData.options];
                 newOptions[optionIndex].media.url = url;
@@ -256,8 +256,8 @@ const Question = () => {
         let newOptions = [...formData.options];
         if (newType === 'short-answer' || newType === 'recognition') {
             const firstCorrect = newOptions.find(o => o.isCorrect) || newOptions[0];
-            newOptions = [{ 
-                ...firstCorrect, 
+            newOptions = [{
+                ...firstCorrect,
                 isCorrect: true,
                 media: firstCorrect.media || { url: '', type: 'none' }
             }];
@@ -281,7 +281,7 @@ const Question = () => {
     const removeOption = (index) => {
         if (formData.type === 'multiple-choice' && formData.options.length <= 2) return;
         if (formData.type !== 'multiple-choice' && formData.options.length <= 1) return;
-        
+
         const newOptions = formData.options.filter((_, i) => i !== index);
         setFormData({ ...formData, options: newOptions });
     };
@@ -336,10 +336,10 @@ const Question = () => {
 
             <div className="question-controls">
                 <div className="left-controls">
-                    <SearchBox 
-                        value={searchTerm} 
-                        onChange={setSearchTerm} 
-                        placeholder="Tìm theo nội dung câu hỏi..." 
+                    <SearchBox
+                        value={searchTerm}
+                        onChange={setSearchTerm}
+                        placeholder="Tìm theo nội dung câu hỏi..."
                     />
                 </div>
 
@@ -362,7 +362,6 @@ const Question = () => {
                 }}
             />
 
-            {/* View Modal */}
             <DetailModal
                 isOpen={isViewModalOpen}
                 onClose={() => setIsViewModalOpen(false)}
@@ -371,80 +370,88 @@ const Question = () => {
             >
                 {selectedQuestion && (
                     <div className="question-detail-view">
-                        <div className="detail-header">
-                            <h3 className="detail-question-text">{selectedQuestion.question}</h3>
-                            <div className="question-meta">
-                                <span className={`badge badge-diff-${selectedQuestion.difficulty}`}>{selectedQuestion.difficulty}</span>
-                                <span className="badge badge-type">{selectedQuestion.type}</span>
-                                <span className="badge badge-topic">{selectedQuestion.topicId?.name}</span>
-                            </div>
-                        </div>
-
-                        {selectedQuestion.media?.url && (
+                        <div className="detail-media-side">
                             <div className="detail-media-container">
-                                {selectedQuestion.media.type === 'video' ? (
-                                    isYouTubeUrl(selectedQuestion.media.url) ? (
-                                        <iframe 
-                                            width="100%" 
-                                            height="315" 
-                                            src={getYouTubeEmbedUrl(selectedQuestion.media.url)} 
-                                            title="YouTube video player" 
-                                            frameBorder="0" 
-                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                                            allowFullScreen
-                                            style={{borderRadius: '12px'}}
-                                        ></iframe>
+                                {selectedQuestion.media?.url ? (
+                                    selectedQuestion.media.type === 'video' ? (
+                                        isYouTubeUrl(selectedQuestion.media.url) ? (
+                                            <iframe
+                                                width="100%"
+                                                height="100%"
+                                                src={getYouTubeEmbedUrl(selectedQuestion.media.url)}
+                                                title="YouTube video player"
+                                                frameBorder="0"
+                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                                allowFullScreen
+                                            ></iframe>
+                                        ) : (
+                                            <video src={selectedQuestion.media.url} controls />
+                                        )
                                     ) : (
-                                        <video src={selectedQuestion.media.url} controls />
+                                        <img
+                                            src={selectedQuestion.media.url}
+                                            alt="Question media"
+                                            onClick={() => setPreviewImage(selectedQuestion.media.url)}
+                                            style={{ cursor: 'zoom-in' }}
+                                        />
                                     )
                                 ) : (
-                                    <img 
-                                        src={selectedQuestion.media.url} 
-                                        alt="Question media" 
-                                        onClick={() => setPreviewImage(selectedQuestion.media.url)}
-                                        style={{ cursor: 'zoom-in' }}
-                                    />
-                                )}
-                            </div>
-                        )}
-
-                        <div className="detail-section">
-                            <h4 className="detail-options-title">Danh sách đáp án</h4>
-                            <div className="detail-options-list">
-                                {selectedQuestion.options.map((opt, i) => (
-                                    <div key={i} className={`detail-option-item ${opt.isCorrect ? 'is-correct' : ''}`}>
-                                        <div className="detail-option-marker">
-                                            {opt.isCorrect ? <Check size={14} /> : String.fromCharCode(65 + i)}
-                                        </div>
-                                        <span className="detail-option-text">{opt.content}</span>
-                                        {opt.media?.url && (
-                                            <div className="detail-option-media-preview">
-                                                {opt.media.type === 'video' ? (
-                                                    <Video size={16} color="#9ca3af" />
-                                                ) : (
-                                                    <img 
-                                                        src={opt.media.url} 
-                                                        alt="Option media" 
-                                                        className="option-mini-img" 
-                                                        onClick={() => setPreviewImage(opt.media.url)}
-                                                        style={{ cursor: 'zoom-in' }}
-                                                    />
-                                                )}
-                                            </div>
-                                        )}
+                                    <div className="media-placeholder">
+                                        <HelpCircle size={64} color="#e2e8f0" />
+                                        <span>Câu hỏi dạng chữ</span>
                                     </div>
-                                ))}
+                                )}
                             </div>
                         </div>
 
-                        <div className="detail-section" style={{display: 'flex', gap: '2rem', borderTop: '1px solid #f3f4f6', paddingTop: '1rem'}}>
-                            <div>
-                                <h5 style={{color: '#9ca3af', marginBottom: '0.25rem', fontSize: '0.75rem'}}>ĐIỂM SỐ</h5>
-                                <span style={{fontWeight: '700'}}>{selectedQuestion.score} điểm</span>
+                        <div className="detail-info-side">
+                            <div className="detail-header">
+                                <h3 className="detail-question-text">{selectedQuestion.question}</h3>
+                                <div className="question-meta">
+                                    <span className={`badge badge-diff-${selectedQuestion.difficulty}`}><Target size={12} /> {selectedQuestion.difficulty}</span>
+                                    <span className="badge badge-type"><Layers size={12} /> {selectedQuestion.type}</span>
+                                    <span className="badge badge-topic"><BookOpen size={12} /> {selectedQuestion.topicId?.name}</span>
+                                </div>
                             </div>
-                            <div>
-                                <h5 style={{color: '#9ca3af', marginBottom: '0.25rem', fontSize: '0.75rem'}}>THỜI GIAN</h5>
-                                <span style={{fontWeight: '700'}}>{selectedQuestion.time} giây</span>
+
+                            <div className="detail-section">
+                                <h4 className="detail-options-title">Danh sách đáp án</h4>
+                                <div className="detail-options-list">
+                                    {selectedQuestion.options.map((opt, i) => (
+                                        <div key={i} className={`detail-option-item ${opt.isCorrect ? 'is-correct' : ''}`}>
+                                            <div className="detail-option-marker">
+                                                {opt.isCorrect ? <Check size={14} /> : String.fromCharCode(65 + i)}
+                                            </div>
+                                            <span className="detail-option-text">{opt.content}</span>
+                                            {opt.media?.url && (
+                                                <div className="detail-option-media-preview">
+                                                    {opt.media.type === 'video' ? (
+                                                        <Video size={16} color="#9ca3af" />
+                                                    ) : (
+                                                        <img
+                                                            src={opt.media.url}
+                                                            alt="Option media"
+                                                            className="option-mini-img"
+                                                            onClick={() => setPreviewImage(opt.media.url)}
+                                                            style={{ cursor: 'zoom-in' }}
+                                                        />
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div className="detail-footer-stats">
+                                <div className="stat-box">
+                                    <span className="stat-label">ĐIỂM SỐ</span>
+                                    <span className="stat-value">{selectedQuestion.score} điểm</span>
+                                </div>
+                                <div className="stat-box">
+                                    <span className="stat-label">THỜI GIAN</span>
+                                    <span className="stat-value">{selectedQuestion.time} giây</span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -465,11 +472,11 @@ const Question = () => {
                         <div className="form-grid">
                             <div className="form-group full-width">
                                 <label className="form-label">Nội dung câu hỏi *</label>
-                                <textarea 
-                                    className="form-textarea" 
+                                <textarea
+                                    className="form-textarea"
                                     rows="3"
                                     value={formData.question}
-                                    onChange={(e) => setFormData({...formData, question: e.target.value})}
+                                    onChange={(e) => setFormData({ ...formData, question: e.target.value })}
                                     placeholder="Nhập nội dung câu hỏi..."
                                     required
                                 />
@@ -486,7 +493,7 @@ const Question = () => {
 
                             <div className="form-group">
                                 <label className="form-label">Độ khó</label>
-                                <select className="form-select" value={formData.difficulty} onChange={(e) => setFormData({...formData, difficulty: e.target.value})}>
+                                <select className="form-select" value={formData.difficulty} onChange={(e) => setFormData({ ...formData, difficulty: e.target.value })}>
                                     <option value="easy">Dễ</option>
                                     <option value="medium">Trung bình</option>
                                     <option value="hard">Khó</option>
@@ -495,19 +502,19 @@ const Question = () => {
 
                             <div className="form-group">
                                 <label className="form-label">Chủ đề</label>
-                                <select className="form-select" value={formData.topicId} onChange={(e) => setFormData({...formData, topicId: e.target.value})} required>
+                                <select className="form-select" value={formData.topicId} onChange={(e) => setFormData({ ...formData, topicId: e.target.value })} required>
                                     {topics.map(t => <option key={t._id} value={t._id}>{t.name}</option>)}
                                 </select>
                             </div>
 
                             <div className="form-group">
                                 <label className="form-label">Điểm số</label>
-                                <input type="number" className="form-input" value={formData.score} onChange={(e) => setFormData({...formData, score: Number(e.target.value)})} min="1" />
+                                <input type="number" className="form-input" value={formData.score} onChange={(e) => setFormData({ ...formData, score: Number(e.target.value) })} min="1" />
                             </div>
 
                             <div className="form-group">
                                 <label className="form-label">Thời gian làm (giây)</label>
-                                <input type="number" className="form-input" value={formData.time} onChange={(e) => setFormData({...formData, time: Number(e.target.value)})} min="0" />
+                                <input type="number" className="form-input" value={formData.time} onChange={(e) => setFormData({ ...formData, time: Number(e.target.value) })} min="0" />
                             </div>
                         </div>
                     </div>
@@ -517,57 +524,57 @@ const Question = () => {
                         <div className="section-title"><ImageIcon size={18} /> Hình ảnh / Video minh họa cho câu hỏi</div>
                         <div className="form-group full-width">
                             <label className="form-label">Ảnh/Gif/Video</label>
-                            <div style={{display: 'flex', gap: '0.75rem', alignItems: 'center'}}>
-                                <select 
-                                    className="form-select" 
-                                    style={{width: '150px', minWidth: '150px'}}
-                                    value={formData.media.type} 
-                                    onChange={(e) => setFormData({...formData, media: {...formData.media, type: e.target.value}})}
+                            <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                                <select
+                                    className="form-select"
+                                    style={{ width: '150px', minWidth: '150px' }}
+                                    value={formData.media.type}
+                                    onChange={(e) => setFormData({ ...formData, media: { ...formData.media, type: e.target.value } })}
                                 >
                                     <option value="none">Không có</option>
                                     <option value="image">Hình ảnh</option>
                                     <option value="gif">GIF</option>
                                     <option value="video">Video</option>
                                 </select>
-                                <input 
-                                    type="text" 
-                                    className="form-input" 
-                                    value={formData.media.url} 
-                                    onChange={(e) => setFormData({...formData, media: {...formData.media, url: e.target.value}})} 
-                                    placeholder="Nhập URL hoặc tải file lên" 
+                                <input
+                                    type="text"
+                                    className="form-input"
+                                    value={formData.media.url}
+                                    onChange={(e) => setFormData({ ...formData, media: { ...formData.media, url: e.target.value } })}
+                                    placeholder="Nhập URL hoặc tải file lên"
                                     disabled={formData.media.type === 'none'}
                                 />
                                 <input type="file" id="main-media-upload" hidden onChange={(e) => handleFileUpload('main', e.target.files[0])} />
-                                <button 
-                                    type="button" 
-                                    className="btn-add" 
-                                    style={{padding: '0.75rem', boxShadow: 'none'}} 
-                                    onClick={() => document.getElementById('main-media-upload').click()} 
+                                <button
+                                    type="button"
+                                    className="btn-add"
+                                    style={{ padding: '0.75rem', boxShadow: 'none' }}
+                                    onClick={() => document.getElementById('main-media-upload').click()}
                                     disabled={uploadingField === 'main' || formData.media.type === 'none'}
                                     title="Tải tệp lên"
                                 >
-                                    {uploadingField === 'main' ? <div className="loader-spinner" style={{width: '20px', height: '20px'}}></div> : <Upload size={18} />}
+                                    {uploadingField === 'main' ? <div className="loader-spinner" style={{ width: '20px', height: '20px' }}></div> : <Upload size={18} />}
                                 </button>
                             </div>
 
                             {/* Media Preview inside form */}
                             {formData.media.url && formData.media.type !== 'none' && (
-                                <div style={{marginTop: '1rem', borderRadius: '12px', overflow: 'hidden', border: '1px solid #e5e7eb', background: '#f9fafb', maxWidth: '400px'}}>
+                                <div style={{ marginTop: '1rem', borderRadius: '12px', overflow: 'hidden', border: '1px solid #e5e7eb', background: '#f9fafb', maxWidth: '400px' }}>
                                     {formData.media.type === 'video' ? (
                                         isYouTubeUrl(formData.media.url) ? (
-                                            <iframe 
-                                                width="100%" 
-                                                height="225" 
-                                                src={getYouTubeEmbedUrl(formData.media.url)} 
-                                                title="YouTube video player" 
-                                                frameBorder="0" 
+                                            <iframe
+                                                width="100%"
+                                                height="225"
+                                                src={getYouTubeEmbedUrl(formData.media.url)}
+                                                title="YouTube video player"
+                                                frameBorder="0"
                                                 allowFullScreen
                                             ></iframe>
                                         ) : (
-                                            <video src={formData.media.url} controls style={{width: '100%', maxHeight: '225px'}} />
+                                            <video src={formData.media.url} controls style={{ width: '100%', maxHeight: '225px' }} />
                                         )
                                     ) : (
-                                        <img src={formData.media.url} alt="Preview" style={{width: '100%', maxHeight: '225px', objectFit: 'contain', display: 'block'}} />
+                                        <img src={formData.media.url} alt="Preview" style={{ width: '100%', maxHeight: '225px', objectFit: 'contain', display: 'block' }} />
                                     )}
                                 </div>
                             )}
@@ -591,35 +598,35 @@ const Question = () => {
                                         </div>
                                     </div>
                                     <div className="option-content-grid">
-                                        <div className="form-group" style={{margin: 0}}>
-                                            <input 
-                                                type="text" 
-                                                className="form-input" 
-                                                value={option.content} 
+                                        <div className="form-group" style={{ margin: 0 }}>
+                                            <input
+                                                type="text"
+                                                className="form-input"
+                                                value={option.content}
                                                 onChange={(e) => {
                                                     const newOpts = [...formData.options];
                                                     newOpts[idx].content = e.target.value;
-                                                    setFormData({...formData, options: newOpts});
+                                                    setFormData({ ...formData, options: newOpts });
                                                 }}
                                                 placeholder={`Nội dung đáp án ${idx + 1}...`}
                                                 required
                                             />
                                         </div>
                                         {formData.type === 'multiple-choice' && (
-                                            <div 
+                                            <div
                                                 className={`correct-toggle ${option.isCorrect ? 'active' : ''}`}
                                                 onClick={() => toggleCorrectOption(idx)}
                                             >
-                                                {option.isCorrect ? <CheckCircle size={16} /> : <div style={{width: 16}} />}
+                                                {option.isCorrect ? <CheckCircle size={16} /> : <div style={{ width: 16 }} />}
                                                 <span>{option.isCorrect ? 'Chính xác' : 'Đáp án đúng?'}</span>
                                             </div>
                                         )}
                                     </div>
 
                                     {/* Option Media */}
-                                    <div className="option-media-section" style={{marginTop: '1rem', borderTop: '1px dashed #e5e7eb', paddingTop: '0.75rem'}}>
-                                        <div style={{display: 'flex', alignItems: 'center', gap: '1rem'}}>
-                                            <div style={{display: 'flex', gap: '0.5rem'}}>
+                                    <div className="option-media-section" style={{ marginTop: '1rem', borderTop: '1px dashed #e5e7eb', paddingTop: '0.75rem' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                            <div style={{ display: 'flex', gap: '0.5rem' }}>
                                                 {['none', 'image', 'gif', 'video'].map(mType => (
                                                     <button
                                                         key={mType}
@@ -627,7 +634,7 @@ const Question = () => {
                                                         onClick={() => {
                                                             const newOpts = [...formData.options];
                                                             newOpts[idx].media.type = mType;
-                                                            setFormData({...formData, options: newOpts});
+                                                            setFormData({ ...formData, options: newOpts });
                                                         }}
                                                         style={{
                                                             padding: '0.4rem 0.6rem',
@@ -649,64 +656,64 @@ const Question = () => {
                                                         {mType === 'image' && <ImageIcon size={14} />}
                                                         {mType === 'gif' && <Box size={14} />}
                                                         {mType === 'video' && <Video size={14} />}
-                                                        <span style={{textTransform: 'capitalize'}}>{mType === 'none' ? 'Không' : mType}</span>
+                                                        <span style={{ textTransform: 'capitalize' }}>{mType === 'none' ? 'Không' : mType}</span>
                                                     </button>
                                                 ))}
                                             </div>
 
                                             {option.media.type !== 'none' && (
-                                                <div style={{flex: 1, display: 'flex', gap: '0.5rem', animation: 'fadeIn 0.3s ease-out'}}>
-                                                    <input 
-                                                        type="text" 
-                                                        className="form-input" 
-                                                        style={{flex: 1, padding: '0.4rem 0.75rem', fontSize: '0.8rem', height: '32px'}}
-                                                        value={option.media.url} 
+                                                <div style={{ flex: 1, display: 'flex', gap: '0.5rem', animation: 'fadeIn 0.3s ease-out' }}>
+                                                    <input
+                                                        type="text"
+                                                        className="form-input"
+                                                        style={{ flex: 1, padding: '0.4rem 0.75rem', fontSize: '0.8rem', height: '32px' }}
+                                                        value={option.media.url}
                                                         onChange={(e) => {
                                                             const newOpts = [...formData.options];
                                                             newOpts[idx].media.url = e.target.value;
-                                                            setFormData({...formData, options: newOpts});
+                                                            setFormData({ ...formData, options: newOpts });
                                                         }}
                                                         placeholder={`URL ${option.media.type}...`}
                                                     />
                                                     <input type="file" id={`opt-media-${idx}`} hidden onChange={(e) => handleFileUpload(`opt-${idx}`, e.target.files[0], idx)} />
-                                                    <button 
-                                                        type="button" 
-                                                        className="btn-add" 
-                                                        style={{padding: '0 0.5rem', height: '32px', boxShadow: 'none'}} 
-                                                        onClick={() => document.getElementById(`opt-media-${idx}`).click()} 
+                                                    <button
+                                                        type="button"
+                                                        className="btn-add"
+                                                        style={{ padding: '0 0.5rem', height: '32px', boxShadow: 'none' }}
+                                                        onClick={() => document.getElementById(`opt-media-${idx}`).click()}
                                                         disabled={uploadingField === `opt-${idx}`}
                                                     >
-                                                        {uploadingField === `opt-${idx}` ? <div className="loader-spinner" style={{width: '14px', height: '14px'}}></div> : <Upload size={14} />}
+                                                        {uploadingField === `opt-${idx}` ? <div className="loader-spinner" style={{ width: '14px', height: '14px' }}></div> : <Upload size={14} />}
                                                     </button>
                                                 </div>
                                             )}
                                         </div>
 
                                         {option.media.type === 'image' && option.media.url && (
-                                            <div style={{marginTop: '0.5rem', borderRadius: '8px', overflow: 'hidden', border: '1px solid #e5e7eb', width: 'fit-content'}}>
-                                                <img src={option.media.url} alt="Option preview" style={{height: '60px', display: 'block'}} />
+                                            <div style={{ marginTop: '0.5rem', borderRadius: '8px', overflow: 'hidden', border: '1px solid #e5e7eb', width: 'fit-content' }}>
+                                                <img src={option.media.url} alt="Option preview" style={{ height: '60px', display: 'block' }} />
                                             </div>
                                         )}
                                         {option.media.type === 'video' && option.media.url && (
-                                            <div style={{marginTop: '0.5rem', borderRadius: '8px', overflow: 'hidden', border: '1px solid #e5e7eb', width: '100%', maxWidth: '300px'}}>
+                                            <div style={{ marginTop: '0.5rem', borderRadius: '8px', overflow: 'hidden', border: '1px solid #e5e7eb', width: '100%', maxWidth: '300px' }}>
                                                 {isYouTubeUrl(option.media.url) ? (
-                                                    <iframe 
-                                                        width="100%" 
-                                                        height="170" 
-                                                        src={getYouTubeEmbedUrl(option.media.url)} 
-                                                        title="YouTube video player" 
-                                                        frameBorder="0" 
+                                                    <iframe
+                                                        width="100%"
+                                                        height="170"
+                                                        src={getYouTubeEmbedUrl(option.media.url)}
+                                                        title="YouTube video player"
+                                                        frameBorder="0"
                                                         allowFullScreen
                                                     ></iframe>
                                                 ) : (
-                                                    <video src={option.media.url} controls style={{width: '100%', maxHeight: '170px'}} />
+                                                    <video src={option.media.url} controls style={{ width: '100%', maxHeight: '170px' }} />
                                                 )}
                                             </div>
                                         )}
                                     </div>
                                 </div>
                             ))}
-                            
+
                             {formData.type === 'multiple-choice' && (
                                 <button type="button" className="btn-add-option" onClick={addOption}>
                                     <PlusCircle size={20} />
@@ -716,10 +723,10 @@ const Question = () => {
                         </div>
                     </div>
 
-                    <div className="question-form-footer" style={{marginTop: '2rem', display: 'flex', justifyContent: 'flex-end', gap: '1rem', paddingTop: '1.5rem', borderTop: '1px solid #f3f4f6'}}>
-                        <button type="button" className="btn-add" style={{background: '#9ca3af', boxShadow: 'none'}} onClick={() => setIsFormModalOpen(false)}>Hủy</button>
+                    <div className="question-form-footer" style={{ marginTop: '2rem', display: 'flex', justifyContent: 'flex-end', gap: '1rem', paddingTop: '1.5rem', borderTop: '1px solid #f3f4f6' }}>
+                        <button type="button" className="btn-add" style={{ background: '#9ca3af', boxShadow: 'none' }} onClick={() => setIsFormModalOpen(false)}>Hủy</button>
                         <button type="submit" className="btn-add" disabled={isSaving}>
-                            {isSaving ? <div className="loader-spinner" style={{width: '20px', height: '20px'}}></div> : <Save size={18} />}
+                            {isSaving ? <div className="loader-spinner" style={{ width: '20px', height: '20px' }}></div> : <Save size={18} />}
                             <span>{isEditing ? "Cập nhật" : "Lưu câu hỏi"}</span>
                         </button>
                     </div>

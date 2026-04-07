@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const IMGBB_API_KEY = '6e1e69c3342d234a5b239cb6ad395349';
+const IMGBB_API_KEY = import.meta.env.VITE_IMGBB_API_KEY;
 
 export const uploadToImgBB = async (file) => {
     const formData = new FormData();

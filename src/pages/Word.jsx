@@ -367,8 +367,8 @@ const Word = () => {
                         <div className="detail-info">
                             <h3>{selectedWord.name}</h3>
                             <div className="detail-meta">
-                                <span className="detail-topic">{selectedWord.topicId?.name}</span>
-                                <span className="detail-exp">{selectedWord.exp} EXP</span>
+                                <span className="detail-topic"><Layers size={14} /> {selectedWord.topicId?.name}</span>
+                                <span className="detail-exp"><Award size={14} /> {selectedWord.exp} EXP</span>
                             </div>
                             <div className="detail-desc">
                                 <h4>Mô tả:</h4>
