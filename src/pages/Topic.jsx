@@ -3,6 +3,7 @@ import { Eye, Plus, Trash2, Edit2, BookOpen, Layers, Award, X } from 'lucide-rea
 import Loading from '../components/Loading/Loading';
 import DataTable from '../components/DataTable/DataTable';
 import SearchBox from '../components/SearchBox/SearchBox';
+import FilterBox from '../components/FilterBox/FilterBox';
 import DetailModal from '../components/DetailModal/DetailModal';
 import ConfirmModal from '../components/ConfirmModal/ConfirmModal';
 import NotificationModal from '../components/NotificationModal/NotificationModal';
@@ -19,6 +20,9 @@ const Topic = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [totalTopics, setTotalTopics] = useState(0);
+    const [sortBy, setSortBy] = useState('createdAt');
+    const [sortOrder, setSortOrder] = useState('desc');
+    const [filterLevel, setFilterLevel] = useState('all');
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
     const [selectedTopic, setSelectedTopic] = useState(null);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -35,7 +39,7 @@ const Topic = () => {
 
     useEffect(() => {
         fetchTopics();
-    }, [currentPage, searchTerm]);
+    }, [currentPage, searchTerm, filterLevel, sortBy, sortOrder]);
 
     useEffect(() => {
         if (previewImage) {
@@ -53,6 +57,10 @@ const Topic = () => {
                 limit: pageSize,
                 search: searchTerm
             };
+            if (filterLevel !== 'all') params.level = filterLevel;
+            if (sortBy) params.sortBy = sortBy;
+            if (sortOrder) params.sortOrder = sortOrder;
+            
             const result = await topicService.getAllTopics(params);
 
             if (result.success) {
@@ -73,7 +81,12 @@ const Topic = () => {
     // Filter change resets to page 1
     useEffect(() => {
         setCurrentPage(1);
-    }, [searchTerm]);
+    }, [searchTerm, filterLevel, sortBy, sortOrder]);
+
+    const handleSortChange = ({ sortBy: newSortBy, sortOrder: newSortOrder }) => {
+        setSortBy(newSortBy);
+        setSortOrder(newSortOrder);
+    };
 
     const paginatedTopics = topics; // Server-paginated components should just use the fetched list directly
 
@@ -241,6 +254,9 @@ const Topic = () => {
             header: "Chủ đề",
             key: "name",
             width: "30%",
+            sortable: true,
+            sortKey: "name",
+            textAlign: "left",
             render: (val, row) => (
                 <div className="topic-info">
                     <img
@@ -313,11 +329,25 @@ const Topic = () => {
             </div>
 
             <div className="topic-controls">
-                <SearchBox
-                    value={searchTerm}
-                    onChange={setSearchTerm}
-                    placeholder="Tìm tên chủ đề hoặc mô tả..."
-                />
+                <div className="left-controls">
+                    <SearchBox
+                        value={searchTerm}
+                        onChange={setSearchTerm}
+                        placeholder="Tìm tên chủ đề hoặc mô tả..."
+                    />
+
+                    <FilterBox
+                        value={filterLevel}
+                        onChange={setFilterLevel}
+                        options={[
+                            { label: 'Beginner', value: 'Beginner' },
+                            { label: 'Intermediate', value: 'Intermediate' },
+                            { label: 'Advanced', value: 'Advanced' }
+                        ]}
+                        placeholder="Tất cả trình độ"
+                        icon={Award}
+                    />
+                </div>
 
                 <button className="btn-add" onClick={handleAddClick}>
                     <Plus size={20} />
@@ -330,6 +360,8 @@ const Topic = () => {
                 data={paginatedTopics}
                 loading={loading}
                 error={error}
+                sortConfig={{ sortBy, sortOrder }}
+                onSortChange={handleSortChange}
                 pagination={{
                     total: totalTopics,
                     pageSize: pageSize,

@@ -3,6 +3,7 @@ import { Eye, Plus, Trash2, Edit2, Award } from 'lucide-react';
 import Loading from '../components/Loading/Loading';
 import DataTable from '../components/DataTable/DataTable';
 import SearchBox from '../components/SearchBox/SearchBox';
+import FilterBox from '../components/FilterBox/FilterBox';
 import Modal from '../components/DetailModal/DetailModal';
 import ConfirmModal from '../components/ConfirmModal/ConfirmModal';
 import NotificationModal from '../components/NotificationModal/NotificationModal';
@@ -19,6 +20,10 @@ const User = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [totalUsers, setTotalUsers] = useState(0);
+    const [sortBy, setSortBy] = useState('createdAt');
+    const [sortOrder, setSortOrder] = useState('desc');
+    const [filterRole, setFilterRole] = useState('all');
+    const [filterLevel, setFilterLevel] = useState('all');
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
     const [selectedUser, setSelectedUser] = useState(null);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -48,7 +53,7 @@ const User = () => {
         if (!isInitialLoading) {
             fetchUsers(false);
         }
-    }, [currentPage, searchTerm]);
+    }, [currentPage, searchTerm, filterRole, filterLevel, sortBy, sortOrder]);
 
     const fetchUsers = async (initial = false) => {
         try {
@@ -59,6 +64,10 @@ const User = () => {
                 limit: pageSize,
                 search: searchTerm
             };
+            if (filterRole !== 'all') params.role = filterRole;
+            if (filterLevel !== 'all') params.level = filterLevel;
+            if (sortBy) params.sortBy = sortBy;
+            if (sortOrder) params.sortOrder = sortOrder;
             const result = await userService.getAllUsers(params);
             if (result.success) {
                 let userList = result.data || [];
@@ -90,7 +99,12 @@ const User = () => {
 
     useEffect(() => {
         setCurrentPage(1);
-    }, [searchTerm]);
+    }, [searchTerm, filterRole, filterLevel, sortBy, sortOrder]);
+
+    const handleSortChange = ({ sortBy: newSortBy, sortOrder: newSortOrder }) => {
+        setSortBy(newSortBy);
+        setSortOrder(newSortOrder);
+    };
 
     const handleImageError = (e, name) => {
         e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(name || 'User')}&background=random&color=fff`;
@@ -248,6 +262,9 @@ const User = () => {
             header: "Người dùng",
             key: "fullname",
             width: "30%",
+            sortable: true,
+            sortKey: "fullname",
+            textAlign: "left",
             render: (val, row) => (
                 <div className="user-info">
                     <img
@@ -322,11 +339,36 @@ const User = () => {
             </div>
 
             <div className="user-controls">
-                <SearchBox
-                    value={searchTerm}
-                    onChange={setSearchTerm}
-                    placeholder="Tìm tên, email hoặc username..."
-                />
+                <div className="left-controls">
+                    <SearchBox
+                        value={searchTerm}
+                        onChange={setSearchTerm}
+                        placeholder="Tìm tên, email hoặc username..."
+                    />
+
+                    <FilterBox
+                        value={filterRole}
+                        onChange={setFilterRole}
+                        options={[
+                            { label: 'Admin', value: 'admin' },
+                            { label: 'User', value: 'user' }
+                        ]}
+                        placeholder="Tất cả vai trò"
+                        icon={Award}
+                    />
+
+                    <FilterBox
+                        value={filterLevel}
+                        onChange={setFilterLevel}
+                        options={[
+                            { label: 'Beginner', value: 'Beginner' },
+                            { label: 'Intermediate', value: 'Intermediate' },
+                            { label: 'Advanced', value: 'Advanced' }
+                        ]}
+                        placeholder="Tất cả trình độ"
+                        icon={Award}
+                    />
+                </div>
 
                 <button className="btn-add" onClick={handleAddClick}>
                     <Plus size={20} />
@@ -339,6 +381,8 @@ const User = () => {
                 data={users}
                 loading={loading}
                 error={error}
+                sortConfig={{ sortBy, sortOrder }}
+                onSortChange={handleSortChange}
                 pagination={{
                     total: totalUsers,
                     pageSize: pageSize,

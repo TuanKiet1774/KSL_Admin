@@ -24,6 +24,8 @@ const Word = () => {
     const [selectedTopicId, setSelectedTopicId] = useState('all');
     const [currentPage, setCurrentPage] = useState(1);
     const [totalWords, setTotalWords] = useState(0);
+    const [sortBy, setSortBy] = useState('createdAt');
+    const [sortOrder, setSortOrder] = useState('desc');
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
     const [selectedWord, setSelectedWord] = useState(null);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -39,15 +41,15 @@ const Word = () => {
     const pageSize = 10;
 
     useEffect(() => {
-        fetchData();
+        fetchWords();
         fetchTopics();
     }, []);
 
     useEffect(() => {
         if (!isInitialLoading) {
-            fetchData();
+            fetchWords();
         }
-    }, [currentPage, searchTerm, selectedTopicId]);
+    }, [currentPage, searchTerm, selectedTopicId, sortBy, sortOrder]);
     
     useEffect(() => {
         if (previewImage) {
@@ -68,14 +70,16 @@ const Word = () => {
         }
     };
 
-    const fetchData = async () => {
+    const fetchWords = async () => {
         try {
             setLoading(true);
             const params = {
                 page: currentPage,
                 limit: pageSize,
                 search: searchTerm,
-                topicId: selectedTopicId === 'all' ? undefined : selectedTopicId
+                topicId: selectedTopicId === 'all' ? undefined : selectedTopicId,
+                sortBy: sortBy,
+                sortOrder: sortOrder
             };
             
             const wordsRes = await wordService.getAllWords(params);
@@ -97,6 +101,12 @@ const Word = () => {
     useEffect(() => {
         setCurrentPage(1);
     }, [searchTerm, selectedTopicId]);
+
+    const handleSortChange = ({ sortBy: newSortBy, sortOrder: newSortOrder }) => {
+        setSortBy(newSortBy);
+        setSortOrder(newSortOrder);
+        setCurrentPage(1);
+    };
 
     const handleAddClick = () => {
         setFormData({
@@ -255,7 +265,9 @@ const Word = () => {
         {
             header: "Từ vựng",
             key: "name",
-            width: "25%",
+            width: "30%",
+            sortable: true,
+            sortKey: "name",
             render: (val, row) => (
                 <div className="word-info">
                     {row.media?.url ? (
@@ -330,6 +342,8 @@ const Word = () => {
                 data={paginatedWords}
                 loading={loading}
                 error={error}
+                sortConfig={{ sortBy, sortOrder }}
+                onSortChange={handleSortChange}
                 pagination={{
                     total: totalWords,
                     pageSize: pageSize,

@@ -23,6 +23,89 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
   border-bottom: 1px solid var(--border-color);
+  position: relative;
+}
+
+.header-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.header-sort {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.sort-trigger {
+  border: none;
+  background: transparent;
+  padding: 4px;
+  cursor: pointer;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.sort-trigger:hover, .sort-trigger.active {
+  background: #f1f5f9;
+  color: var(--primary);
+}
+
+.sort-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  background: white;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  width: 220px;
+  padding: 6px;
+  z-index: 100;
+  animation: slideDown 0.2s ease-out;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.sort-dropdown button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+}
+
+.sort-dropdown button:hover {
+  background: #f8fafc;
+  color: var(--primary);
+}
+
+.sort-dropdown button.active {
+  background: #eff6ff;
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.sort-dropdown button svg {
+  flex-shrink: 0;
 }
 
 .data-table td {

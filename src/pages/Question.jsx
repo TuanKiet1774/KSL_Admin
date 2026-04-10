@@ -33,6 +33,8 @@ const Question = () => {
     const [filterTopic, setFilterTopic] = useState('all');
     const [totalQuestions, setTotalQuestions] = useState(0);
     const [currentPage, setCurrentPage] = useState(1);
+    const [sortBy, setSortBy] = useState('createdAt');
+    const [sortOrder, setSortOrder] = useState('desc');
     const pageSize = 10;
 
     // Modals
@@ -72,7 +74,7 @@ const Question = () => {
         if (!isInitialLoading) {
             fetchQuestions();
         }
-    }, [currentPage, searchTerm, filterType, filterDifficulty, filterTopic]);
+    }, [currentPage, searchTerm, filterType, filterDifficulty, filterTopic, sortBy, sortOrder]);
     
     useEffect(() => {
         if (previewImage) {
@@ -108,6 +110,8 @@ const Question = () => {
             if (filterType !== 'all') params.type = filterType;
             if (filterDifficulty !== 'all') params.difficulty = filterDifficulty;
             if (filterTopic !== 'all') params.topicId = filterTopic;
+            if (sortBy) params.sortBy = sortBy;
+            if (sortOrder) params.sortOrder = sortOrder;
             const result = await questionService.getAllQuestions(params);
             
             if (result.success) {
@@ -125,7 +129,12 @@ const Question = () => {
 
     useEffect(() => {
         setCurrentPage(1);
-    }, [searchTerm, filterType, filterDifficulty, filterTopic]);
+    }, [searchTerm, filterType, filterDifficulty, filterTopic, sortBy, sortOrder]);
+
+    const handleSortChange = ({ sortBy: newSortBy, sortOrder: newSortOrder }) => {
+        setSortBy(newSortBy);
+        setSortOrder(newSortOrder);
+    };
 
     const paginatedQuestions = questions; 
 
@@ -300,6 +309,9 @@ const Question = () => {
             header: "Câu hỏi",
             key: "question",
             width: "80%",
+            sortable: true,
+            sortKey: "question",
+            textAlign: "left",
             render: (val, row) => (
                 <div className="question-info-cell">
                     <span className="question-text">{val}</span>
@@ -387,6 +399,8 @@ const Question = () => {
                 data={paginatedQuestions}
                 loading={loading}
                 error={error}
+                sortConfig={{ sortBy, sortOrder }}
+                onSortChange={handleSortChange}
                 pagination={{
                     total: totalQuestions,
                     pageSize: pageSize,
