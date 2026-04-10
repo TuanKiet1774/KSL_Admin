@@ -3,6 +3,7 @@ import { Eye, Plus, Trash2, Edit2, BookOpen, Layers, Award, Image as ImageIcon, 
 import Loading from '../components/Loading/Loading';
 import DataTable from '../components/DataTable/DataTable';
 import SearchBox from '../components/SearchBox/SearchBox';
+import FilterBox from '../components/FilterBox/FilterBox';
 import DetailModal from '../components/DetailModal/DetailModal';
 import ConfirmModal from '../components/ConfirmModal/ConfirmModal';
 import NotificationModal from '../components/NotificationModal/NotificationModal';
@@ -308,7 +309,14 @@ const Word = () => {
                         onChange={setSearchTerm} 
                         placeholder="Tìm theo tên, mô tả hoặc chủ đề..." 
                     />
-                
+                    
+                    <FilterBox 
+                        value={selectedTopicId}
+                        onChange={setSelectedTopicId}
+                        options={topics.map(t => ({ label: t.name, value: t._id }))}
+                        placeholder="Tất cả chủ đề"
+                        icon={BookOpen}
+                    />
                 </div>
 
                 <button className="btn-add" onClick={handleAddClick}>

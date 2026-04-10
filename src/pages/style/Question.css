@@ -65,6 +65,10 @@
 
 .left-controls {
     flex: 1;
+    display: flex;
+    gap: 1.25rem;
+    align-items: center;
+    flex-wrap: wrap;
 }
 
 .filter-group {

@@ -8,6 +8,7 @@ import {
 import Loading from '../components/Loading/Loading';
 import DataTable from '../components/DataTable/DataTable';
 import SearchBox from '../components/SearchBox/SearchBox';
+import FilterBox from '../components/FilterBox/FilterBox';
 import DetailModal from '../components/DetailModal/DetailModal';
 import ConfirmModal from '../components/ConfirmModal/ConfirmModal';
 import NotificationModal from '../components/NotificationModal/NotificationModal';
@@ -101,12 +102,12 @@ const Question = () => {
             setLoading(true);
             const params = {
                 page: currentPage,
-                limit: pageSize,
-                search: searchTerm,
-                type: filterType === 'all' ? undefined : filterType,
-                difficulty: filterDifficulty === 'all' ? undefined : filterDifficulty,
-                topicId: filterTopic === 'all' ? undefined : filterTopic
+                limit: pageSize
             };
+            if (searchTerm.trim()) params.search = searchTerm;
+            if (filterType !== 'all') params.type = filterType;
+            if (filterDifficulty !== 'all') params.difficulty = filterDifficulty;
+            if (filterTopic !== 'all') params.topicId = filterTopic;
             const result = await questionService.getAllQuestions(params);
             
             if (result.success) {
@@ -304,7 +305,7 @@ const Question = () => {
                     <span className="question-text">{val}</span>
                     <div className="question-meta">
                         <span className="badge badge-type">{row.type === 'multiple-choice' ? 'Trắc nghiệm' : row.type === 'short-answer' ? 'Tự luận' : 'Nhận diện'}</span>
-                        <span className={`badge badge-diff-${row.difficulty}`}>{row.difficulty === 'easy' ? 'Dễ' : row.difficulty === 'medium' ? 'Trung bình' : 'Khó'}</span>
+                        <span className={`badge badge-diff-${row.difficulty?.toLowerCase()}`}>{row.difficulty?.toLowerCase() === 'easy' ? 'Dễ' : row.difficulty?.toLowerCase() === 'medium' ? 'Trung bình' : 'Khó'}</span>
                         <span className="badge badge-topic">{row.topicId?.name}</span>
                     </div>
                 </div>
@@ -340,6 +341,38 @@ const Question = () => {
                         value={searchTerm} 
                         onChange={setSearchTerm} 
                         placeholder="Tìm theo nội dung câu hỏi..." 
+                    />
+                    
+                    <FilterBox 
+                        value={filterType}
+                        onChange={setFilterType}
+                        options={[
+                            { label: 'Trắc nghiệm', value: 'multiple-choice' },
+                            { label: 'Tự luận', value: 'short-answer' },
+                            { label: 'Nhận diện', value: 'recognition' }
+                        ]}
+                        placeholder="Tất cả loại"
+                        icon={Layers}
+                    />
+
+                    <FilterBox 
+                        value={filterDifficulty}
+                        onChange={setFilterDifficulty}
+                        options={[
+                            { label: 'Dễ', value: 'easy' },
+                            { label: 'Trung bình', value: 'medium' },
+                            { label: 'Khó', value: 'hard' }
+                        ]}
+                        placeholder="Độ khó"
+                        icon={Target}
+                    />
+
+                    <FilterBox 
+                        value={filterTopic}
+                        onChange={setFilterTopic}
+                        options={topics.map(t => ({ label: t.name, value: t._id }))}
+                        placeholder="Tất cả chủ đề"
+                        icon={BookOpen}
                     />
                 </div>
 
