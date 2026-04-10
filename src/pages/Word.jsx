@@ -122,8 +122,8 @@ const Word = () => {
         const extension = media.url.split('?')[0].split('.').pop().toLowerCase();
         
         if (media.type === 'image') {
-            if (!['jpg', 'jpeg', 'png'].includes(extension)) {
-                return "Ảnh phải có định dạng .jpg, .jpeg hoặc .png";
+            if (!['jpg', 'jpeg', 'png', 'webp', 'svg', 'avif'].includes(extension)) {
+                return "Ảnh phải có định dạng .jpg, .jpeg, .png, .webp, .svg hoặc .avif";
             }
         } else if (media.type === 'gif') {
             if (extension !== 'gif') {

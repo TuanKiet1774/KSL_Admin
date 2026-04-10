@@ -67,19 +67,51 @@ const FormBase = ({
         return "";
     };
 
-    const handleChange = (name, value) => {
-        const updatedData = { ...formData, [name]: value };
-        setFormData(updatedData);
-        
-        // Validate current field
-        const error = validateField(name, value, updatedData);
-        setErrors(prev => ({ ...prev, [name]: error }));
-
-        // If password changes, re-validate confirmPassword
-        if (name === 'password' && formData.confirmPassword) {
-            const confirmError = value === formData.confirmPassword ? "" : "Mật khẩu xác nhận không khớp.";
-            setErrors(prev => ({ ...prev, confirmPassword: confirmError }));
+    const detectMediaType = (value, file = null) => {
+        if (file) {
+            const mime = file.type.toLowerCase();
+            if (mime === 'image/gif') return 'gif';
+            if (mime.startsWith('image/')) return 'image';
+            if (mime.startsWith('video/')) return 'video';
         }
+        if (value && typeof value === 'string') {
+            const url = value.toLowerCase().split('?')[0].split('#')[0];
+            if (url.includes('youtube.com') || url.includes('youtu.be') || url.includes('youtube-nocookie.com')) {
+                return 'video';
+            }
+            const extension = url.split('.').pop();
+            if (extension === 'gif') return 'gif';
+            if (['mp4', 'webm', 'ogg', 'mov'].includes(extension)) return 'video';
+            if (['jpg', 'jpeg', 'png', 'webp', 'svg', 'bmp', 'ico', 'avif'].includes(extension)) return 'image';
+        }
+        return null;
+    };
+
+    const handleChange = (name, value, file = null) => {
+        setFormData(prev => {
+            const updatedData = { ...prev, [name]: value };
+            
+            // Auto-detect media type if the field name follows the media.url/media.type pattern
+            if (name.endsWith('.url')) {
+                const detectedType = detectMediaType(value, file);
+                if (detectedType) {
+                    const typeField = name.replace('.url', '.type');
+                    updatedData[typeField] = detectedType;
+                }
+            }
+
+            // Validate current field
+            const error = validateField(name, value, updatedData);
+            setErrors(prevErrors => ({ ...prevErrors, [name]: error }));
+
+            // If password changes, re-validate confirmPassword
+            if (name === 'password' && updatedData.confirmPassword) {
+                const confirmError = value === updatedData.confirmPassword ? "" : "Mật khẩu xác nhận không khớp.";
+                setErrors(prevErrors => ({ ...prevErrors, confirmPassword: confirmError }));
+            }
+
+            return updatedData;
+        });
     };
 
     const handleFileChange = async (name, e) => {
@@ -87,12 +119,12 @@ const FormBase = ({
         if (!file) return;
 
         const localUrl = URL.createObjectURL(file);
-        handleChange(name, localUrl);
+        handleChange(name, localUrl, file);
 
         try {
             setUploadingField(name);
             const imageUrl = await uploadToImgBB(file);
-            handleChange(name, imageUrl);
+            handleChange(name, imageUrl, file);
         } catch (error) {
             console.error('Upload error:', error);
             alert('Upload hình ảnh thất bại. Vui lòng thử lại!');
@@ -142,7 +174,6 @@ const FormBase = ({
                                             onChange={(e) => handleChange(field.name, e.target.value)}
                                             required={field.required}
                                         >
-                                            <option value="">-- Chọn {field.label} --</option>
                                             {field.options?.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
                                         </select>
                                     ) : field.type === 'radio' ? (

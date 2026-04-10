@@ -30,64 +30,105 @@
 .stat-card {
   background: white;
   padding: 1.5rem;
-  border-radius: 16px;
-  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  border: 1px solid rgba(226, 232, 240, 0.7);
   display: flex;
   align-items: center;
   gap: 1.25rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.04), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
+  z-index: 1;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.4) 100%);
+  z-index: -1;
 }
 
 .stat-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-  border-color: var(--primary);
+  transform: translateY(-8px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  border-color: rgba(99, 102, 241, 0.4);
 }
 
 .stat-icon {
-  width: 56px;
-  height: 56px;
-  border-radius: 12px;
+  width: 60px;
+  height: 60px;
+  border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f1f5f9;
-  color: var(--primary);
   flex-shrink: 0;
-  transition: transform 0.3s ease;
+  transition: all 0.4s ease;
+  position: relative;
+  z-index: 2;
+  box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.1);
 }
 
 .stat-card:hover .stat-icon {
-  transform: scale(1.1);
+  transform: scale(1.1) rotate(5deg);
 }
 
 .stat-info {
   flex: 1;
+  z-index: 2;
 }
 
 .stat-label {
   display: block;
-  font-size: 0.875rem;
-  font-weight: 500;
+  font-size: 0.9375rem;
+  font-weight: 600;
   color: #64748b;
   margin-bottom: 0.25rem;
 }
 
 .stat-value {
   display: block;
-  font-size: 1.5rem;
-  font-weight: 700;
+  font-size: 1.75rem;
+  font-weight: 800;
   color: #1e293b;
+  letter-spacing: -0.025em;
 }
 
-/* Specific Card Colors */
-.card-users .stat-icon { background: #eef2ff; color: #6366f1; }
-.card-topics .stat-icon { background: #fef2f2; color: #ef4444; }
-.card-words .stat-icon { background: #ecfdf5; color: #10b981; }
-.card-feedback .stat-icon { background: #fff7ed; color: #f59e0b; }
+.stat-card-bg-icon {
+  position: absolute;
+  right: -10px;
+  bottom: -10px;
+  opacity: 0.05;
+  transform: rotate(-15deg);
+  z-index: 0;
+  transition: all 0.4s ease;
+}
+
+.stat-card:hover .stat-card-bg-icon {
+  transform: rotate(0deg) scale(1.1);
+  opacity: 0.08;
+}
+
+/* Specific Card Styles with Glassmorphism & Gradients */
+.card-users { background: linear-gradient(135deg, #ffffff 0%, #f5f7ff 100%); }
+.card-users .stat-icon { background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); color: white; }
+.card-users:hover { border-color: #6366f1; }
+
+.card-topics { background: linear-gradient(135deg, #ffffff 0%, #fff5f5 100%); }
+.card-topics .stat-icon { background: linear-gradient(135deg, #f87171 0%, #ef4444 100%); color: white; }
+.card-topics:hover { border-color: #ef4444; }
+
+.card-words { background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%); }
+.card-words .stat-icon { background: linear-gradient(135deg, #34d399 0%, #10b981 100%); color: white; }
+.card-words:hover { border-color: #10b981; }
+
+.card-feedback { background: linear-gradient(135deg, #ffffff 0%, #fffaf3 100%); }
+.card-feedback .stat-icon { background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: white; }
+.card-feedback:hover { border-color: #f59e0b; }
 
 /* Chart Section */
 .charts-container {
@@ -99,9 +140,14 @@
 .chart-card {
   background: white;
   padding: 2rem;
-  border-radius: 16px;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border-radius: 24px;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  transition: all 0.3s ease;
+}
+
+.chart-card:hover {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
 }
 
 .chart-title {
@@ -120,8 +166,8 @@
   display: flex;
   align-items: flex-end;
   justify-content: space-around;
-  padding: 1rem 0 2rem 0;
-  border-bottom: 2px solid #f1f5f9;
+  padding: 1rem 0 3rem 0;
+  border-bottom: 2px solid #f8fafc;
   position: relative;
 }
 

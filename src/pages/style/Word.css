@@ -88,12 +88,13 @@
 .word-desc-column {
   color: var(--text-secondary);
   font-size: 0.9rem;
+  max-width: 400px;
+  white-space: pre-wrap;
+  word-break: break-word;
   display: -webkit-box;
-  -webkit-line-clamp: 1;
-  line-clamp: 1;
+  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  max-width: 400px;
 }
 
 .word-stats {
@@ -218,6 +219,7 @@
   line-height: 1.7;
   font-size: 1.05rem;
   margin: 0;
+  white-space: pre-wrap;
 }
 
 .actions {

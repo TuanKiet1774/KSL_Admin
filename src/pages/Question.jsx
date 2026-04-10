@@ -3,7 +3,7 @@ import {
     Plus, Search, Edit2, Trash2, Eye, 
     HelpCircle, CheckCircle, List, Image as ImageIcon, Video, Clock, 
     Star, Info, PlusCircle, MinusCircle, Check, AlertCircle, X, Save, Upload,
-    Box, Layers, BookOpen, Target
+    Box, Layers, BookOpen, Target, Award
 } from 'lucide-react';
 import Loading from '../components/Loading/Loading';
 import DataTable from '../components/DataTable/DataTable';
@@ -305,7 +305,7 @@ const Question = () => {
                     <div className="question-meta">
                         <span className="badge badge-type">{row.type === 'multiple-choice' ? 'Trắc nghiệm' : row.type === 'short-answer' ? 'Tự luận' : 'Nhận diện'}</span>
                         <span className={`badge badge-diff-${row.difficulty}`}>{row.difficulty === 'easy' ? 'Dễ' : row.difficulty === 'medium' ? 'Trung bình' : 'Khó'}</span>
-                        <span className="badge badge-topic">{row.topicId?.name || 'Vãng lai'}</span>
+                        <span className="badge badge-topic">{row.topicId?.name}</span>
                     </div>
                 </div>
             )
@@ -368,88 +368,84 @@ const Question = () => {
                 title="Thông tin chi tiết câu hỏi"
                 className="question-modal"
             >
-                {selectedQuestion && (
-                    <div className="question-detail-view">
-                        <div className="detail-header-full">
-                            <h3 className="detail-question-text">{selectedQuestion.question}</h3>
-                            <div className="question-meta">
-                                <span className={`badge badge-diff-${selectedQuestion.difficulty}`}><Target size={12} /> {selectedQuestion.difficulty}</span>
-                                <span className="badge badge-type"><Layers size={12} /> {selectedQuestion.type}</span>
-                                <span className="badge badge-topic"><BookOpen size={12} /> {selectedQuestion.topicId?.name}</span>
+                <>
+                    {selectedQuestion && (
+                        <div className="question-detail-view">
+                            <div className="detail-header-full">
+                                <h3 className="detail-question-text">{selectedQuestion.question}</h3>
+                                <div className="question-meta">
+                                    <span className={`badge badge-diff-${selectedQuestion.difficulty}`}><Target size={12} /> {selectedQuestion.difficulty}</span>
+                                    <span className="badge badge-type"><Layers size={12} /> {selectedQuestion.type}</span>
+                                    <span className="badge badge-topic"><BookOpen size={12} /> {selectedQuestion.topicId?.name}</span>
+                                    <span className="badge badge-stats">
+                                        <Award size={12} /> {selectedQuestion.score} điểm 
+                                        <span style={{margin: '0 8px', opacity: 0.3}}>|</span>
+                                        <Clock size={12} /> {selectedQuestion.time} giây
+                                    </span>
+                                </div>
                             </div>
-                        </div>
 
-                        <div className="detail-body-layout">
-                            {selectedQuestion.media?.url && (
-                                <div className="detail-media-side">
-                                    <div className="detail-media-container">
-                                        {selectedQuestion.media.type === 'video' ? (
-                                            isYouTubeUrl(selectedQuestion.media.url) ? (
-                                                <iframe 
-                                                    width="100%" 
-                                                    height="100%" 
-                                                    src={getYouTubeEmbedUrl(selectedQuestion.media.url)} 
-                                                    title="YouTube video player" 
-                                                    frameBorder="0" 
-                                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                                                    allowFullScreen
-                                                ></iframe>
+                            <div className="detail-body-layout">
+                                {selectedQuestion.media?.url && selectedQuestion.media.type !== 'none' && (
+                                    <div className="detail-media-side">
+                                        <div className="detail-media-container">
+                                            {selectedQuestion.media.type === 'video' ? (
+                                                isYouTubeUrl(selectedQuestion.media.url) ? (
+                                                    <iframe 
+                                                        width="100%" 
+                                                        height="100%" 
+                                                        src={getYouTubeEmbedUrl(selectedQuestion.media.url)} 
+                                                        title="YouTube video player" 
+                                                        frameBorder="0" 
+                                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                                        allowFullScreen
+                                                    ></iframe>
+                                                ) : (
+                                                    <video src={selectedQuestion.media.url} controls />
+                                                )
                                             ) : (
-                                                <video src={selectedQuestion.media.url} controls />
-                                            )
-                                        ) : (
-                                            <img 
-                                                src={selectedQuestion.media.url} 
-                                                alt="Question media" 
-                                            />
-                                        )}
+                                                <img 
+                                                    src={selectedQuestion.media.url} 
+                                                    alt="Question media" 
+                                                />
+                                            )}
+                                        </div>
                                     </div>
-                                </div>
-                            )}
+                                )}
 
-                            <div className="detail-info-side">
-                                <div className="detail-section">
-                                    <h4 className="detail-options-title">Danh sách đáp án</h4>
-                                    <div className="detail-options-list">
-                                        {selectedQuestion.options.map((opt, i) => (
-                                            <div key={i} className={`detail-option-item ${opt.isCorrect ? 'is-correct' : ''}`}>
-                                                <div className="option-prefix">
-                                                    {selectedQuestion.type === 'multiple-choice' ? `${String.fromCharCode(65 + i)}.` : '-'}
+                                <div className="detail-info-side">
+                                    <div className="detail-section">
+                                        <h4 className="detail-options-title">Danh sách đáp án</h4>
+                                        <div className="detail-options-list">
+                                            {selectedQuestion.options.map((opt, i) => (
+                                                <div key={i} className={`detail-option-item ${opt.isCorrect ? 'is-correct' : ''}`}>
+                                                    <div className="option-prefix">
+                                                        {selectedQuestion.type === 'multiple-choice' ? `${String.fromCharCode(65 + i)}.` : '-'}
+                                                    </div>
+                                                    <span className="detail-option-text">{opt.content}</span>
+                                                    <div className="option-media-end">
+                                                        {opt.media?.url && (
+                                                            opt.media.type === 'video' ? (
+                                                                <Video size={16} color="#9ca3af" />
+                                                            ) : (
+                                                                <img 
+                                                                    src={opt.media.url} 
+                                                                    alt="Option media" 
+                                                                    className="option-mini-img" 
+                                                                />
+                                                            )
+                                                        )}
+                                                        {opt.isCorrect && <Check size={18} className="correct-badge-icon" />}
+                                                    </div>
                                                 </div>
-                                                <span className="detail-option-text">{opt.content}</span>
-                                                <div className="option-media-end">
-                                                    {opt.media?.url && (
-                                                        opt.media.type === 'video' ? (
-                                                            <Video size={16} color="#9ca3af" />
-                                                        ) : (
-                                                            <img 
-                                                                src={opt.media.url} 
-                                                                alt="Option media" 
-                                                                className="option-mini-img" 
-                                                            />
-                                                        )
-                                                    )}
-                                                    {opt.isCorrect && <Check size={18} className="correct-badge-icon" />}
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                <div className="detail-footer-stats">
-                                    <div className="stat-box">
-                                        <span className="stat-label">ĐIỂM SỐ</span>
-                                        <span className="stat-value">{selectedQuestion.score} điểm</span>
-                                    </div>
-                                    <div className="stat-box">
-                                        <span className="stat-label">THỜI GIAN</span>
-                                        <span className="stat-value">{selectedQuestion.time} giây</span>
+                                            ))}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                )}
+                    )}
+                </>
             </DetailModal>
 
             {/* Add/Edit Modal (Custom Form) */}

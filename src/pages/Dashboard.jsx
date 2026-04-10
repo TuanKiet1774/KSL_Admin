@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Users, BookOpen, MessageSquare, Award, PieChart, BarChart3, TrendingUp, ArrowUpRight } from 'lucide-react';
+import { Users, BookOpen, MessageSquare, Award, PieChart, BarChart3 } from 'lucide-react';
 import Loading from '../components/Loading/Loading';
 import dashboardService from '../services/dashboardService';
 import './style/Dashboard.css';
@@ -68,7 +68,10 @@ const Dashboard = () => {
               <div className="stat-icon"><Users size={28} /></div>
               <div className="stat-info">
                 <span className="stat-label">Người dùng</span>
-                <span className="stat-value" style={{ color: '#6366f1', alignItems: 'center', margin: 'auto' }}>{userCount.toLocaleString()}</span>
+                <span className="stat-value">{userCount.toLocaleString()}</span>
+              </div>
+              <div className="stat-card-bg-icon">
+                <Users size={80} />
               </div>
             </div>
 
@@ -76,7 +79,10 @@ const Dashboard = () => {
               <div className="stat-icon"><BookOpen size={28} /></div>
               <div className="stat-info">
                 <span className="stat-label">Chủ đề</span>
-                <span className="stat-value" style={{ color: '#f34d28ff', alignItems: 'center', margin: 'auto' }}>{topicCount.toLocaleString()}</span>
+                <span className="stat-value">{topicCount.toLocaleString()}</span>
+              </div>
+              <div className="stat-card-bg-icon">
+                <BookOpen size={80} />
               </div>
             </div>
 
@@ -84,7 +90,10 @@ const Dashboard = () => {
               <div className="stat-icon"><Award size={28} /></div>
               <div className="stat-info">
                 <span className="stat-label">Từ vựng</span>
-                <span className="stat-value" style={{ color: '#1fd70bff', alignItems: 'center', margin: 'auto' }}>{wordCount.toLocaleString()}</span>
+                <span className="stat-value">{wordCount.toLocaleString()}</span>
+              </div>
+              <div className="stat-card-bg-icon">
+                <Award size={80} />
               </div>
             </div>
 
@@ -92,7 +101,10 @@ const Dashboard = () => {
               <div className="stat-icon"><MessageSquare size={28} /></div>
               <div className="stat-info">
                 <span className="stat-label">Phản hồi</span>
-                <span className="stat-value" style={{ color: '#ef9f44ff', alignItems: 'center', margin: 'auto' }}>{feedbackCount.toLocaleString()}</span>
+                <span className="stat-value">{feedbackCount.toLocaleString()}</span>
+              </div>
+              <div className="stat-card-bg-icon">
+                <MessageSquare size={80} />
               </div>
             </div>
           </div>

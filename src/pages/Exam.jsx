@@ -77,10 +77,11 @@ const Exam = () => {
             setLoading(true);
             const params = {
                 page: currentPage,
-                limit: pageSize,
-                search: searchTerm,
-                topicId: filterTopic === 'all' ? undefined : filterTopic
+                limit: pageSize
             };
+            if (searchTerm.trim()) params.search = searchTerm;
+            if (filterTopic !== 'all') params.topicId = filterTopic;
+            
             const response = await examService.getAllExams(params);
             if (response.success) {
                 setExams(response.data || []);
@@ -128,8 +129,8 @@ const Exam = () => {
         setIsEditing(true);
         setFormData({
             ...exam,
-            topicId: exam.topicId?._id || exam.topicId,
-            questions: exam.questions.map(q => q._id || q)
+            topicId: exam.topicId?._id || exam.topicId || '',
+            questions: Array.isArray(exam.questions) ? exam.questions.map(q => q._id || q) : []
         });
         setIsFormModalOpen(true);
     };
@@ -233,7 +234,6 @@ const Exam = () => {
                 <div className="exam-info-cell">
                     <span className="exam-title">{val}</span>
                     <div className="exam-meta">
-                        <span className="badge badge-topic">{row.topicId?.name || 'Vãng lai'}</span>
                         <span className="badge badge-count">{row.questions?.length || 0} câu hỏi</span>
                     </div>
                 </div>
@@ -258,7 +258,7 @@ const Exam = () => {
     }
 
     const filteredPickerQuestions = questions.filter(q => 
-        q.question.toLowerCase().includes(pickerSearch.toLowerCase()) &&
+        (q.question?.toLowerCase() || '').includes(pickerSearch.toLowerCase()) &&
         (formData.topicId === '' || (q.topicId?._id || q.topicId) === formData.topicId)
     );
 
