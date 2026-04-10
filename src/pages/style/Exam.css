@@ -125,10 +125,21 @@
     background: #f9fafb;
 }
 
-.picker-search {
-    padding: 0.75rem;
+.picker-search-box {
+    padding: 0.5rem;
     border-bottom: 1px solid #e5e7eb;
     background: white;
+    max-width: none !important;
+}
+
+.picker-search-box .search-box {
+    border: none;
+    box-shadow: none;
+}
+
+.picker-search-box .search-box:focus-within {
+    transform: none;
+    box-shadow: none;
 }
 
 .picker-list {

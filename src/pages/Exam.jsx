@@ -25,7 +25,6 @@ const Exam = () => {
     
     // Filters
     const [searchTerm, setSearchTerm] = useState('');
-    const [filterTopic, setFilterTopic] = useState('all');
     const [totalExams, setTotalExams] = useState(0);
     const [currentPage, setCurrentPage] = useState(1);
     const pageSize = 10;
@@ -39,6 +38,7 @@ const Exam = () => {
     const [isFormModalOpen, setIsFormModalOpen] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
+    const [isDetailLoading, setIsDetailLoading] = useState(false);
     const [notif, setNotif] = useState({ isOpen: false, type: 'success', message: '' });
 
     // Picker State
@@ -48,7 +48,6 @@ const Exam = () => {
     const initialExamState = {
         title: '',
         description: '',
-        topicId: '',
         questions: []
     };
     const [formData, setFormData] = useState(initialExamState);
@@ -61,7 +60,7 @@ const Exam = () => {
         if (!isInitialLoading) {
             fetchData();
         }
-    }, [currentPage, searchTerm, filterTopic]);
+    }, [currentPage, searchTerm]);
 
     const fetchInitialData = async () => {
         try {
@@ -80,7 +79,6 @@ const Exam = () => {
                 limit: pageSize
             };
             if (searchTerm.trim()) params.search = searchTerm;
-            if (filterTopic !== 'all') params.topicId = filterTopic;
             
             const response = await examService.getAllExams(params);
             if (response.success) {
@@ -112,7 +110,7 @@ const Exam = () => {
 
     useEffect(() => {
         setCurrentPage(1);
-    }, [searchTerm, filterTopic]);
+    }, [searchTerm]);
 
     const paginatedExams = exams; 
 
@@ -129,24 +127,27 @@ const Exam = () => {
         setIsEditing(true);
         setFormData({
             ...exam,
-            topicId: exam.topicId?._id || exam.topicId || '',
             questions: Array.isArray(exam.questions) ? exam.questions.map(q => q._id || q) : []
         });
         setIsFormModalOpen(true);
     };
 
     const handleViewDetail = async (exam) => {
+        // Mở modal ngay lập tức với dữ liệu cơ bản từ danh sách
+        setSelectedExam(exam);
+        setIsViewModalOpen(true);
+        
         try {
-            setLoading(true);
+            setIsDetailLoading(true);
             const res = await examService.getExamById(exam._id);
             if (res.success) {
+                // Cập nhật dữ liệu đầy đủ (bao gồm danh sách câu hỏi chi tiết) sau khi fetch xong
                 setSelectedExam(res.data);
-                setIsViewModalOpen(true);
             }
         } catch (err) {
-            setNotif({ isOpen: true, type: 'error', message: 'Lỗi khi tải chi tiết đề thi.' });
+            console.error("Lỗi khi tải chi tiết:", err);
         } finally {
-            setLoading(false);
+            setIsDetailLoading(false);
         }
     };
 
@@ -258,8 +259,7 @@ const Exam = () => {
     }
 
     const filteredPickerQuestions = questions.filter(q => 
-        (q.question?.toLowerCase() || '').includes(pickerSearch.toLowerCase()) &&
-        (formData.topicId === '' || (q.topicId?._id || q.topicId) === formData.topicId)
+        (q.question?.toLowerCase() || '').includes(pickerSearch.toLowerCase())
     );
 
     return (
@@ -305,22 +305,26 @@ const Exam = () => {
             >
                 {selectedExam && (
                     <div className="exam-detail-view">
-                        <div className="detail-header">
-                            <h3 className="detail-exam-title">{selectedExam.title}</h3>
-                            <p className="detail-exam-desc">{selectedExam.description || 'Không có mô tả.'}</p>
-                            <div className="exam-meta">
-                                <span className="badge badge-topic">{selectedExam.topicId?.name}</span>
-                                <span className="badge badge-count">{selectedExam.questions?.length || 0} câu hỏi</span>
+                        <div className="detail-header" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '0.5rem', marginBottom: '1.5rem' }}>
+                            <h3 className="detail-exam-title" style={{ fontSize: '1.75rem', fontWeight: '800', color: '#111827', margin: 0 }}>{selectedExam.title}</h3>
+                            <div className="badge badge-count" style={{ fontSize: '0.75rem', padding: '0.3rem 0.6rem', background: '#e0f2fe', color: '#0369a1', borderRadius: '6px' }}>
+                                {selectedExam.questions?.length || 0} Câu hỏi
+                            </div>
+                            <div className="detail-exam-desc-section" style={{ width: '100%', marginTop: '0.5rem' }}>
+                                <h4 style={{ fontSize: '0.95rem', fontWeight: '700', color: '#374151', marginBottom: '0.5rem' }}>Mô tả đề thi</h4>
+                                <div className="detail-exam-desc" style={{ fontSize: '0.9rem', color: '#6b7280', lineHeight: '1.5', whiteSpace: 'pre-wrap', borderTop: '1px solid #f1f5f9', paddingTop: '0.75rem' }}>
+                                    {selectedExam.description || 'Không có mô tả cho đề thi này.'}
+                                </div>
                             </div>
                         </div>
 
-                        <div className="detail-section">
-                            <h4 className="detail-section-title">Danh sách câu hỏi</h4>
+                        <div className="detail-section" style={{ marginTop: '1rem' }}>
+                            <h4 className="detail-section-title" style={{ fontSize: '0.95rem', fontWeight: '700', color: '#374151', marginBottom: '1rem' }}>Danh sách câu hỏi</h4>
                             <div className="questions-preview-list">
                                 {selectedExam.questions.map((q, i) => (
-                                    <div key={i} className="preview-item">
-                                        <div style={{fontWeight: '600', marginBottom: '0.25rem'}}>Câu {i + 1}: {q.question}</div>
-                                        <div style={{fontSize: '0.8rem', color: '#6b7280'}}>Loại: {q.type === 'multiple-choice' ? 'Trắc nghiệm' : 'Tự luận'} - Độ khó: {q.difficulty}</div>
+                                    <div key={i} className="preview-item" style={{ padding: '0.6rem 0.8rem' }}>
+                                        <div style={{fontWeight: '600', marginBottom: '0.2rem', fontSize: '0.85rem'}}>Câu {i + 1}: {q.question}</div>
+                                        <div style={{fontSize: '0.75rem', color: '#9ca3af'}}>Loại: {q.type === 'multiple-choice' ? 'Trắc nghiệm' : 'Tự luận'} - Độ khó: {q.difficulty}</div>
                                     </div>
                                 ))}
                             </div>
@@ -362,33 +366,17 @@ const Exam = () => {
                                 placeholder="Nhập mô tả đề thi..."
                             />
                         </div>
-                        <div className="form-group">
-                            <label className="form-label" style={{display: 'block', marginBottom: '0.5rem', fontWeight: '600'}}>Chủ đề</label>
-                            <select 
-                                className="form-select" 
-                                style={{width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #e5e7eb'}}
-                                value={formData.topicId} 
-                                onChange={(e) => setFormData({...formData, topicId: e.target.value})} 
-                                required
-                            >
-                                {topics.map(t => <option key={t._id} value={t._id}>{t.name}</option>)}
-                            </select>
-                        </div>
                     </div>
 
                     <div className="form-section">
                         <div className="section-title"><List size={18} /> Chọn câu hỏi ({formData.questions.length})</div>
                         <div className="question-picker">
-                            <div className="picker-search" style={{display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
-                                <SearchIcon size={16} color="#9ca3af" />
-                                <input 
-                                    type="text" 
-                                    placeholder="Tìm câu hỏi theo nội dung..." 
-                                    style={{border: 'none', outline: 'none', width: '100%', fontSize: '0.9rem'}}
-                                    value={pickerSearch}
-                                    onChange={(e) => setPickerSearch(e.target.value)}
-                                />
-                            </div>
+                            <SearchBox 
+                                value={pickerSearch} 
+                                onChange={setPickerSearch} 
+                                placeholder="Tìm câu hỏi theo nội dung..." 
+                                className="picker-search-box"
+                            />
                             <div className="picker-list">
                                 {filteredPickerQuestions.length > 0 ? (
                                     filteredPickerQuestions.map(q => (
