@@ -98,6 +98,12 @@
     padding-right: 0.5rem;
 }
 
+.form-textarea {
+    font-family: inherit;
+    font-size: inherit;
+    resize: vertical;
+}
+
 .form-section {
     margin-bottom: 2rem;
     padding-bottom: 1.5rem;
