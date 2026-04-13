@@ -150,6 +150,7 @@ const Word = () => {
 
     const transformPayload = (data) => {
         const payload = { ...data };
+        payload.exp = Number(data.exp) || 0;
         payload.media = {
             url: data['media.url'] || '',
             type: data['media.type'] || 'image'
@@ -185,7 +186,7 @@ const Word = () => {
             if (result.success) {
                 setNotif({ isOpen: true, type: 'success', message: "Thêm từ vựng thành công!" });
                 setIsAddModalOpen(false);
-                fetchData();
+                fetchWords();
             } else {
                 setNotif({ isOpen: true, type: 'error', message: result.message || "Đã có lỗi xảy ra." });
             }
@@ -212,7 +213,7 @@ const Word = () => {
             if (result.success) {
                 setNotif({ isOpen: true, type: 'success', message: "Cập nhật thành công!" });
                 setIsEditModalOpen(false);
-                fetchData();
+                fetchWords();
             } else {
                 setNotif({ isOpen: true, type: 'error', message: result.message || "Đã có lỗi xảy ra." });
             }
@@ -230,7 +231,7 @@ const Word = () => {
             if (result.success) {
                 setNotif({ isOpen: true, type: 'success', message: `Xóa "${wordToDelete.name}" thành công!` });
                 setIsDeleteModalOpen(false);
-                fetchData();
+                fetchWords();
             }
         } catch (err) {
             setNotif({ isOpen: true, type: 'error', message: "Lỗi khi xóa từ vựng." });

@@ -300,13 +300,13 @@ const User = () => {
         {
             header: "Vai trò",
             key: "role",
-            width: "10%",
+            width: "8%",
             render: (val) => <span className={`badge badge-${val}`}>{val}</span>
         },
         {
             header: "Trình độ",
             key: "level",
-            width: "15%",
+            width: "12%",
             render: (val) => (
                 <div className="level-badge">
                     <Award size={16} color="#6366f1" />

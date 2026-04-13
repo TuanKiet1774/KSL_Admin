@@ -3,6 +3,7 @@ import { URI_API } from './api';
 
 const axiosInstance = axios.create({
   baseURL: URI_API,
+  timeout: 30000,
 });
 
 // Add a request interceptor to include the Bearer token

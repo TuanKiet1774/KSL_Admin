@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './style/Profile.css';
-import { User, Mail, Shield, Calendar, MapPin, Phone, Award, Star, Zap, Edit2, Save, Undo2, CheckCircle2, AlertCircle, AtSign, Upload, Image as ImageIcon, Camera } from 'lucide-react';
-import { updateProfile, getProfile } from '../services/authService';
+import { User, Mail, Shield, Calendar, MapPin, Phone, Award, Star, Zap, Edit2, Save, Undo2, CheckCircle2, AlertCircle, AtSign, Upload, Image as ImageIcon, Camera, Lock, Eye, EyeOff, KeyRound, ShieldCheck, RefreshCw, ArrowLeft } from 'lucide-react';
+import { updateProfile, getProfile, changePassword, verifyPassword } from '../services/authService';
 import NotificationModal from '../components/NotificationModal/NotificationModal';
 import DetailModal from '../components/DetailModal/DetailModal';
 import Loading from '../components/Loading/Loading';
+import VerificationModal from '../components/VerificationModal/VerificationModal';
 import { uploadToImgBB } from '../utils/upload';
 
 const Profile = () => {
@@ -23,6 +24,8 @@ const Profile = () => {
         avatar: '',
         gender: ''
     });
+
+    const [showChangePassword, setShowChangePassword] = useState(false);
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -55,6 +58,7 @@ const Profile = () => {
 
         fetchUser();
     }, []);
+
 
     const handleAvatarUpload = async (e) => {
         const file = e.target.files[0];
@@ -132,6 +136,18 @@ const Profile = () => {
         } finally {
             setLoading(false);
         }
+    };
+
+
+    const onChangePassword = async (currentPassword, newPassword) => {
+        const result = await changePassword(currentPassword, newPassword);
+        setNotification({
+            isOpen: true,
+            type: 'success',
+            title: 'Thành công',
+            message: 'Đổi mật khẩu thành công!'
+        });
+        return result;
     };
 
     return (
@@ -243,10 +259,16 @@ const Profile = () => {
 
                         <div className="profile-actions">
                             {!isEditing ? (
-                                <button className="profile-edit-btn" onClick={() => setIsEditing(true)}>
-                                    <Edit2 size={18} />
-                                    <span>Chỉnh sửa hồ sơ</span>
-                                </button>
+                                <div className="profile-actions-group">
+                                    <button className="profile-edit-btn" onClick={() => setIsEditing(true)}>
+                                        <Edit2 size={18} />
+                                        <span>Chỉnh sửa hồ sơ</span>
+                                    </button>
+                                    <button className="profile-change-pass-btn" onClick={() => setShowChangePassword(true)}>
+                                        <KeyRound size={18} />
+                                        <span>Đổi mật khẩu</span>
+                                    </button>
+                                </div>
                             ) : (
                                 <div className="edit-actions">
                                     <button className="profile-save-btn" onClick={handleSave} disabled={loading}>
@@ -444,6 +466,12 @@ const Profile = () => {
                     </div>
                 </div>
             </div>
+            <VerificationModal
+                isOpen={showChangePassword}
+                onClose={() => setShowChangePassword(false)}
+                onVerifyCurrentPassword={verifyPassword}
+                onFinalSubmit={onChangePassword}
+            />
         </div>
     );
 };

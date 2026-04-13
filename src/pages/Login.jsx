@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { login } from '../services/authService';
-import { User, Lock, Eye, EyeOff, LogIn, AlertCircle } from 'lucide-react';
+import { User, Lock, Eye, EyeOff, LogIn, KeyRound } from 'lucide-react';
 import NotificationModal from '../components/NotificationModal/NotificationModal';
 import './style/Login.css';
 
@@ -26,6 +26,35 @@ const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [isNotifOpen, setIsNotifOpen] = useState(false);
 
+    const navigate = useNavigate();
+
+    const handleChange = (e) => {
+        setFormData({
+            ...formData,
+            [e.target.name]: e.target.value
+        });
+        setError('');
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        setError('');
+
+        try {
+            const result = await login(formData.emailOrUsername, formData.password);
+            if (result.success) {
+                navigate('/splash', { state: { fromLogin: true } });
+            } else {
+                setError(result.message || 'Đăng nhập thất bại');
+            }
+        } catch (err) {
+            setError(err.message || 'Đã có lỗi xảy ra');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
         if (reason === 'unauthorized') {
             console.error('Chỉ có quản trị viên mới có thể truy cập');
@@ -42,55 +71,6 @@ const Login = () => {
         loading 
     ]);
 
-    const navigate = useNavigate();
-
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: value
-        }));
-        if (error) setError('');
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-
-        if (!formData.emailOrUsername || !formData.password) {
-            setError('Vui lòng nhập đầy đủ thông tin');
-            return;
-        }
-
-        try {
-            setLoading(true);
-            setError('');
-            const response = await login(formData.emailOrUsername, formData.password);
-
-            if (response.success) {
-                localStorage.setItem('user', JSON.stringify(response.data));
-                localStorage.setItem('token', response.data.accessToken);
-                localStorage.setItem('refreshToken', response.data.refreshToken);
-                
-                // Immediately go to splash screen with authorization state
-                navigate('/splash', { state: { fromLogin: true } });
-            }
-
-        } catch (err) {
-            let errorMsg = err.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại tài khoản.';
-            
-            if (errorMsg === 'Invalid credentials') {
-                errorMsg = 'Thông tin đăng nhập chưa chính xác';
-            }
-            
-            setError(errorMsg);
-
-            if (errorMsg.toLowerCase().includes('quản trị viên')) {
-                console.error('Chỉ có quản trị viên mới có thể truy cập');
-            }
-        } finally {
-            setLoading(false);
-        }
-    };
 
     return (
         <div className="login-container">
@@ -162,7 +142,6 @@ const Login = () => {
                 </form>
 
                 <div className="login-footer">
-                    Quên mật khẩu? <a href="#">Liên hệ kĩ thuật</a>
                 </div>
 
                 <NotificationModal
@@ -173,6 +152,7 @@ const Login = () => {
                     message={error}
                 />
             </div>
+
         </div>
     );
 };

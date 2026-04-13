@@ -4,6 +4,12 @@ import { URI_API } from "../config/api";
 export const login = async (emailOrUsername, password) => {
     try {
         const res = await axios.post('/api/auth/login', { emailOrUsername, password });
+        if (res.data.success) {
+            const { accessToken, refreshToken } = res.data.data;
+            localStorage.setItem('token', accessToken);
+            localStorage.setItem('refreshToken', refreshToken);
+            localStorage.setItem('user', JSON.stringify(res.data.data));
+        }
         return res.data;
     } catch (error) {
         throw new Error(error.response?.data?.message || "Đăng nhập thất bại");
@@ -63,5 +69,25 @@ export const updateProfile = async (userData) => {
         return response.data;
     } catch (error) {
         throw new Error(error.response?.data?.message || "Cập nhật profile thất bại");
+    }
+};
+
+// ─── Change Password: Đổi mật khẩu (authenticated) ────────────
+export const changePassword = async (currentPassword, newPassword) => {
+    try {
+        const response = await axios.post('/api/auth/change-password', { currentPassword, newPassword });
+        return response.data;
+    } catch (error) {
+        throw new Error(error.response?.data?.message || "Đổi mật khẩu thất bại");
+    }
+};
+
+// ─── Verify Password: Kiểm tra mật khẩu hiện tại ────────────────────────────
+export const verifyPassword = async (password) => {
+    try {
+        const response = await axios.post('/api/auth/verify-password', { password });
+        return response.data;
+    } catch (error) {
+        throw new Error(error.response?.data?.message || "Mật khẩu không chính xác");
     }
 };
