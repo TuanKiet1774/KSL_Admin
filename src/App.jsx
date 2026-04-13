@@ -32,7 +32,6 @@ function App() {
           } else {
             setIsAdmin(false);
             setIsAuthenticated(false);
-            // Clear storage if not admin but has token (e.g. from user site)
             localStorage.removeItem('token');
             localStorage.removeItem('user');
           }
