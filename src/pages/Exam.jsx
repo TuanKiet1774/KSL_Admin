@@ -11,13 +11,11 @@ import ConfirmModal from '../components/ConfirmModal/ConfirmModal';
 import NotificationModal from '../components/NotificationModal/NotificationModal';
 import './style/Exam.css';
 import examService from '../services/examService';
-import topicService from '../services/topicService';
 import questionService from '../services/questionService';
 
 const Exam = () => {
     // State
     const [exams, setExams] = useState([]);
-    const [topics, setTopics] = useState([]);
     const [questions, setQuestions] = useState([]);
     const [loading, setLoading] = useState(false);
     const [isInitialLoading, setIsInitialLoading] = useState(true);
@@ -48,7 +46,6 @@ const Exam = () => {
     const initialExamState = {
         title: '',
         description: '',
-        topicId: '',
         questions: []
     };
     const [formData, setFormData] = useState(initialExamState);
@@ -65,7 +62,7 @@ const Exam = () => {
 
     const fetchInitialData = async () => {
         try {
-            await fetchTopicsAndQuestions();
+            await fetchQuestions();
             await fetchData();
         } catch (err) {
             console.error("Error fetching initial data:", err);
@@ -95,17 +92,12 @@ const Exam = () => {
         }
     };
 
-    const fetchTopicsAndQuestions = async () => {
+    const fetchQuestions = async () => {
         try {
-            const [tRes, qRes] = await Promise.all([
-                topicService.getAllTopics({ limit: 1000 }),
-                questionService.getAllQuestions({ limit: 1000 })
-            ]);
-
-            if (tRes.success) setTopics(tRes.data || []);
+            const qRes = await questionService.getAllQuestions({ limit: 1000 });
             if (qRes.success) setQuestions(qRes.data || []);
         } catch (err) {
-            console.error("Error fetching dependencies:", err);
+            console.error("Error fetching questions:", err);
         }
     };
 
@@ -117,10 +109,7 @@ const Exam = () => {
 
     const handleAddClick = () => {
         setIsEditing(false);
-        setFormData({
-            ...initialExamState,
-            topicId: topics.length > 0 ? topics[0]._id : ''
-        });
+        setFormData(initialExamState);
         setIsFormModalOpen(true);
     };
 
@@ -128,14 +117,12 @@ const Exam = () => {
         setIsEditing(true);
         setFormData({
             ...exam,
-            topicId: exam.topicId?._id || exam.topicId || '',
             questions: Array.isArray(exam.questions) ? exam.questions.map(q => q._id || q) : []
         });
         setIsFormModalOpen(true);
     };
 
     const handleViewDetail = async (exam) => {
-        // Mở modal ngay lập tức với dữ liệu cơ bản từ danh sách
         setSelectedExam(exam);
         setIsViewModalOpen(true);
         
@@ -143,7 +130,6 @@ const Exam = () => {
             setIsDetailLoading(true);
             const res = await examService.getExamById(exam._id);
             if (res.success) {
-                // Cập nhật dữ liệu đầy đủ (bao gồm danh sách câu hỏi chi tiết) sau khi fetch xong
                 setSelectedExam(res.data);
             }
         } catch (err) {
@@ -232,14 +218,11 @@ const Exam = () => {
         {
             header: "Đề thi",
             key: "title",
-            width: "60%",
+            width: "70%",
             render: (val, row) => (
                 <div className="exam-info-cell">
                     <span className="exam-title">{val}</span>
                     <div className="exam-meta">
-                        <span className="badge badge-topic" style={{ background: '#f3f4f6', color: '#4b5563', marginRight: '0.5rem' }}>
-                            {row.topicId?.name || "Kỳ thi chung"}
-                        </span>
                         <span className="badge badge-count">{row.questions?.length || 0} câu hỏi</span>
                     </div>
                 </div>
@@ -359,20 +342,6 @@ const Exam = () => {
                                 placeholder="Nhập tiêu đề đề thi..."
                                 required
                             />
-                        </div>
-                        <div className="form-group" style={{marginBottom: '1rem'}}>
-                            <label className="form-label" style={{display: 'block', marginBottom: '0.5rem', fontWeight: '600'}}>Chủ đề liên quan</label>
-                            <select 
-                                className="form-select" 
-                                style={{width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #e5e7eb'}}
-                                value={formData.topicId}
-                                onChange={(e) => setFormData({...formData, topicId: e.target.value})}
-                            >
-                                <option value="">Kỳ thi chung (không thuộc chủ đề nào)</option>
-                                {topics.map(t => (
-                                    <option key={t._id} value={t._id}>{t.name}</option>
-                                ))}
-                            </select>
                         </div>
                         <div className="form-group" style={{marginBottom: '1rem'}}>
                             <label className="form-label" style={{display: 'block', marginBottom: '0.5rem', fontWeight: '600'}}>Mô tả</label>
