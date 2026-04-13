@@ -1,11 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './style/Profile.css';
-import { User, Mail, Shield, Calendar, MapPin, Phone, Award, Star, Zap, Edit2, Save, Undo2, CheckCircle2, AlertCircle, AtSign, Upload, Image as ImageIcon, Camera, Lock, Eye, EyeOff, KeyRound, ShieldCheck, RefreshCw, ArrowLeft } from 'lucide-react';
-import { updateProfile, getProfile, changePassword, verifyPassword } from '../services/authService';
+import {
+    User, Mail, Shield, Calendar, MapPin, Phone, Award, Star, Zap,
+    Edit2, Save, Undo2, CheckCircle2, AlertCircle, AtSign, Upload,
+    Image as ImageIcon, Camera, Lock, Eye, EyeOff, KeyRound,
+    ShieldCheck, RefreshCw, ArrowLeft, ExternalLink, Activity
+} from 'lucide-react';
+import { updateProfile, getProfile, changePassword, verifyPassword, verifyIdentity } from '../services/authService';
 import NotificationModal from '../components/NotificationModal/NotificationModal';
 import DetailModal from '../components/DetailModal/DetailModal';
 import Loading from '../components/Loading/Loading';
 import VerificationModal from '../components/VerificationModal/VerificationModal';
+import PasswordConfirmModal from '../components/PasswordConfirmModal/PasswordConfirmModal';
 import { uploadToImgBB } from '../utils/upload';
 
 const Profile = () => {
@@ -26,6 +32,7 @@ const Profile = () => {
     });
 
     const [showChangePassword, setShowChangePassword] = useState(false);
+    const [showPasswordGate, setShowPasswordGate] = useState(false);
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -58,7 +65,6 @@ const Profile = () => {
 
         fetchUser();
     }, []);
-
 
     const handleAvatarUpload = async (e) => {
         const file = e.target.files[0];
@@ -114,11 +120,11 @@ const Profile = () => {
             setLoading(true);
             const result = await updateProfile(formData);
             if (result.success || result) {
-                setNotification({ 
-                    isOpen: true, 
-                    type: 'success', 
+                setNotification({
+                    isOpen: true,
+                    type: 'success',
                     title: 'Thành công',
-                    message: 'Cập nhật thông tin cá nhân thành công!' 
+                    message: 'Cập nhật thông tin cá nhân thành công!'
                 });
                 setIsEditing(false);
                 const updatedUser = { ...user, ...formData };
@@ -127,17 +133,21 @@ const Profile = () => {
                 window.dispatchEvent(new Event('userProfileUpdate'));
             }
         } catch (error) {
-            setNotification({ 
-                isOpen: true, 
-                type: 'error', 
+            setNotification({
+                isOpen: true,
+                type: 'error',
                 title: 'Lỗi',
-                message: error.message || 'Đã có lỗi xảy ra khi cập nhật.' 
+                message: error.message || 'Đã có lỗi xảy ra khi cập nhật.'
             });
         } finally {
             setLoading(false);
         }
     };
 
+    const handleEditStart = async (password) => {
+        await verifyPassword(password);
+        setIsEditing(true);
+    };
 
     const onChangePassword = async (currentPassword, newPassword) => {
         const result = await changePassword(currentPassword, newPassword);
@@ -151,11 +161,11 @@ const Profile = () => {
     };
 
     return (
-        <div className="profile-page-container">
+        <div className="profile-redesign-container">
             {pageLoading && <Loading text="Đang tải thông tin cá nhân..." />}
-            {loading && <Loading text="Đang lưu thay đổi..." />}
+            {(loading || isUploading) && <Loading text={isUploading ? "Đang tải ảnh..." : "Đang lưu thay đổi..."} />}
 
-            <NotificationModal 
+            <NotificationModal
                 isOpen={notification.isOpen}
                 onClose={() => setNotification(prev => ({ ...prev, isOpen: false }))}
                 type={notification.type}
@@ -164,313 +174,234 @@ const Profile = () => {
                 autoCloseTime={3000}
             />
 
+            {/* Avatar Modal */}
             <DetailModal
                 isOpen={isAvatarModalOpen}
                 onClose={() => setIsAvatarModalOpen(false)}
-                title="Thay đổi ảnh đại diện"
+                title="Cập nhật ảnh đại diện"
             >
-                <div className="avatar-modal-content">
-                    <div className="avatar-preview-box">
-                        <img 
-                            src={formData.avatar || getUserAvatar(user)} 
-                            alt="Avatar Preview" 
-                            className="avatar-preview-img"
-                            onError={(e) => { e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.fullname || user?.username || 'User')}&background=6366f1&color=fff`; }}
+                <div className="modern-avatar-modal">
+                    <div className="avatar-preview-container">
+                        <img
+                            src={formData.avatar || getUserAvatar(user)}
+                            alt="Preview"
+                            onError={(e) => { e.target.src = getUserAvatar(user); }}
                         />
                     </div>
-                    <div className="avatar-edit-controls">
-                        <div className="avatar-input-field">
-                            <label>Link ảnh:</label>
+                    <div className="avatar-controls">
+                        <div className="modern-input-group">
+                            <label><AtSign size={14} /> Link ảnh trực tiếp</label>
                             <input
                                 type="text"
                                 name="avatar"
                                 value={formData.avatar}
                                 onChange={handleInputChange}
-                                placeholder="Dán link ảnh tại đây..."
-                                className="edit-input"
+                                placeholder="https://example.com/image.jpg"
                             />
                         </div>
-                        <div className="avatar-upload-section">
-                            <input 
-                                type="file" 
-                                id="avatar-upload-file" 
-                                accept="image/*" 
-                                style={{ display: 'none' }} 
-                                onChange={handleAvatarUpload} 
-                            />
-                            <button 
-                                type="button" 
-                                className="avatar-upload-btn-secondary"
-                                onClick={() => document.getElementById('avatar-upload-file').click()}
-                                disabled={isUploading}
-                            >
-                                {isUploading ? <div className="loader-spinner small-spinner"></div> : <Upload size={18} />}
-                                <span>Tải ảnh lên</span>
-                            </button>
-                        </div>
-                        <button className="avatar-confirm-btn" onClick={() => setIsAvatarModalOpen(false)}>
-                            Xong
+                        <div className="divider-text">hoặc</div>
+                        <button
+                            className="modern-upload-btn"
+                            onClick={() => document.getElementById('avatar-upload-input').click()}
+                        >
+                            <Upload size={18} />
+                            Tải lên từ thiết bị
                         </button>
+                        <input
+                            type="file"
+                            id="avatar-upload-input"
+                            accept="image/*"
+                            style={{ display: 'none' }}
+                            onChange={handleAvatarUpload}
+                        />
                     </div>
+                    <button className="confirm-btn-primary" onClick={() => setIsAvatarModalOpen(false)}>
+                        Hoàn tất
+                    </button>
                 </div>
             </DetailModal>
 
-            <div className="page-header">
-                <h1>Hồ sơ cá nhân</h1>
-            </div>
-
-            <div className="profile-header-content">
-                <div className={`profile-avatar-large ${isEditing ? 'is-editing' : ''}`} onClick={() => isEditing && setIsAvatarModalOpen(true)}>
-                    <img
-                        src={isEditing ? (formData.avatar || getUserAvatar(user)) : getUserAvatar(user)}
-                        alt={user?.username}
-                        onError={(e) => {
-                            e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.fullname || user?.username || 'Admin')}&background=6366f1&color=fff`;
-                        }}
-                    />
-                    {isEditing && (
-                        <div className="avatar-edit-badge">
-                            <Camera size={24} />
-                        </div>
-                    )}
-                </div>
-
-                <div className="profile-main-info">
-                    <div className="profile-name-row">
-                        <div className="profile-name-group">
+            {/* Profile Hero Section */}
+            <div className="profile-hero">
+                <div className="hero-background"></div>
+                <div className="hero-content">
+                    <div className={`hero-avatar-wrapper ${isEditing ? 'editing' : ''}`} onClick={() => isEditing && setIsAvatarModalOpen(true)}>
+                        <img src={formData.avatar || getUserAvatar(user)} alt="Avatar" />
+                        {isEditing && (
+                            <div className="avatar-overlay">
+                                <Camera size={24} />
+                                <span>Thay đổi</span>
+                            </div>
+                        )}
+                    </div>
+                    <div className="hero-info">
+                        <div className="hero-name-row">
                             {isEditing ? (
                                 <input
                                     type="text"
                                     name="fullname"
                                     value={formData.fullname}
                                     onChange={handleInputChange}
-                                    placeholder="Họ và tên..."
-                                    className="edit-input-large"
+                                    className="hero-name-input"
+                                    placeholder="Họ và tên"
                                     autoFocus
                                 />
                             ) : (
-                                <h1 className="profile-fullname">{user?.fullname || 'Admin'}</h1>
+                                <h1 className="hero-fullname">{user?.fullname || 'Administrator'}</h1>
                             )}
-                            <div className="profile-role-badge">
+                            <div className="role-tag">
                                 <Shield size={14} />
-                                <span>{user?.role?.toUpperCase() || 'Admin'}</span>
+                                {user?.role || 'Admin'}
                             </div>
                         </div>
-
-                        <div className="profile-actions">
-                            {!isEditing ? (
-                                <div className="profile-actions-group">
-                                    <button className="profile-edit-btn" onClick={() => setIsEditing(true)}>
-                                        <Edit2 size={18} />
-                                        <span>Chỉnh sửa hồ sơ</span>
-                                    </button>
-                                    <button className="profile-change-pass-btn" onClick={() => setShowChangePassword(true)}>
-                                        <KeyRound size={18} />
-                                        <span>Đổi mật khẩu</span>
-                                    </button>
-                                </div>
-                            ) : (
-                                <div className="edit-actions">
-                                    <button className="profile-save-btn" onClick={handleSave} disabled={loading}>
-                                        <Save size={18} />
-                                        <span>Lưu</span>
-                                    </button>
-                                    <button className="profile-cancel-btn" onClick={() => setIsEditing(false)}>
-                                        <Undo2 size={18} />
-                                        <span>Hủy</span>
-                                    </button>
-                                </div>
-                            )}
-                        </div>
+                        <p className="hero-username">@{user?.username || 'ksl_admin'}</p>
+                    </div>
+                    <div className="hero-actions">
+                        {!isEditing ? (
+                            <button className="btn-edit-profile" onClick={() => setShowPasswordGate(true)}>
+                                <Edit2 size={18} />
+                                Chỉnh sửa hồ sơ
+                            </button>
+                        ) : (
+                            <div className="editing-actions-group">
+                                <button className="btn-change-pw-sub" onClick={() => setShowChangePassword(true)}>
+                                    <Lock size={16} />
+                                    Mật khẩu
+                                </button>
+                                <button className="btn-cancel-edit" onClick={() => setIsEditing(false)}>
+                                    <Undo2 size={18} />
+                                    Hủy
+                                </button>
+                                <button className="btn-save-profile" onClick={handleSave}>
+                                    <Save size={18} />
+                                    Lưu thay đổi
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
 
-            <div className="profile-content-wrapper">
-                <div className="stats-section">
-                    <div className="stat-grid">
-                        <div className="stat-item">
-                            <div className="stat-icon level">
-                                <Award size={24} />
-                            </div>
-                            <div className="stat-info">
-                                <span className="stat-label">Cấp độ</span>
-                                <span className="stat-value">{user?.level || 'Beginner'}</span>
-                            </div>
+            <div className="profile-main-grid">
+                {/* Left Column: Stats & Meta */}
+                <div className="grid-column left">
+                    <div className="modern-card stats-card">
+                        <div className="card-header">
+                            <Activity size={18} />
+                            <h3>Thống kê tài khoản</h3>
                         </div>
-                        <div className="stat-item">
-                            <div className="stat-icon exp">
-                                <Zap size={24} />
+                        <div className="stats-list">
+                            <div className="stat-row">
+                                <div className="stat-icon-box level">
+                                    <Award size={20} />
+                                </div>
+                                <div className="stat-text">
+                                    <label>Cấp độ</label>
+                                    <span className="value">{user?.level || 'Beginner'}</span>
+                                </div>
                             </div>
-                            <div className="stat-info">
-                                <span className="stat-label">Kinh nghiệm</span>
-                                <span className="stat-value">{user?.exp || 0} EXP</span>
+                            <div className="stat-row">
+                                <div className="stat-icon-box exp">
+                                    <Zap size={20} />
+                                </div>
+                                <div className="stat-text">
+                                    <label>Kinh nghiệm</label>
+                                    <span className="value">{user?.exp || 0} Exp</span>
+                                </div>
                             </div>
-                        </div>
-                        <div className="stat-item">
-                            <div className="stat-icon points">
-                                <Star size={24} />
-                            </div>
-                            <div className="stat-info">
-                                <span className="stat-label">Điểm số</span>
-                                <span className="stat-value">{user?.points || 0} Pts</span>
+                            <div className="stat-row">
+                                <div className="stat-icon-box points">
+                                    <Star size={20} />
+                                </div>
+                                <div className="stat-text">
+                                    <label>Điểm số</label>
+                                    <span className="value">{user?.points || 0} Pts</span>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div className="profile-main-content">
-                    <h3 className="section-title">
-                        <User size={18} />
-                        Thông tin chi tiết
-                    </h3>
-                    <div className="details-grid">
-                        <div className="detail-card">
-                            <div className="profile-icon">
-                                <User size={24} />
-                            </div>
-                            <div className="detail-info">
-                                <span className="detail-label">Tên đăng nhập</span>
-                                {isEditing ? (
-                                    <input
-                                        type="text"
-                                        value={`@${user?.username || 'admin'}`}
-                                        className="edit-input"
-                                        readOnly
-                                        disabled
-                                    />
-                                ) : (
-                                    <span className="detail-value">@{user?.username || 'admin'}</span>
-                                )}
-                            </div>
+                {/* Right Column: Detailed Info */}
+                <div className="grid-column right">
+                    <div className="modern-card info-card">
+                        <div className="card-header">
+                            <User size={18} />
+                            <h3>Thông tin cá nhân</h3>
                         </div>
-                        <div className="detail-card">
-                            <div className="profile-icon">
-                                <AtSign size={24} />
+                        <div className="info-form-grid">
+                            <div className="form-group">
+                                <label><Mail size={14} /> Email</label>
+                                <input type="text" value={user?.email || ''} readOnly disabled className="readonly-input" />
                             </div>
-                            <div className="detail-info">
-                                <span className="detail-label">Email</span>
+                            <div className="form-group">
+                                <label><Phone size={14} /> Số điện thoại</label>
+                                <input
+                                    type="text"
+                                    name="phone"
+                                    value={isEditing ? formData.phone : (user?.phone || 'Chưa cập nhật')}
+                                    onChange={handleInputChange}
+                                    readOnly={!isEditing}
+                                    className={isEditing ? 'editable' : 'readonly-input'}
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label><Calendar size={14} /> Ngày sinh</label>
+                                <input
+                                    type={isEditing ? "date" : "text"}
+                                    name="birthday"
+                                    value={isEditing ? formData.birthday : formatDate(user?.birthday)}
+                                    onChange={handleInputChange}
+                                    readOnly={!isEditing}
+                                    className={isEditing ? 'editable' : 'readonly-input'}
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label><ShieldCheck size={14} /> Giới tính</label>
                                 {isEditing ? (
-                                    <input
-                                        type="text"
-                                        value={user?.email || 'N/A'}
-                                        className="edit-input"
-                                        readOnly
-                                        disabled
-                                    />
-                                ) : (
-                                    <span className="detail-value">{user?.email || 'N/A'}</span>
-                                )}
-                            </div>
-                        </div>
-                        <div className="detail-card">
-                            <div className="profile-icon">
-                                <Phone size={24} />
-                            </div>
-                            <div className="detail-info">
-                                <span className="detail-label">Số điện thoại</span>
-                                {isEditing ? (
-                                    <input
-                                        type="text"
-                                        name="phone"
-                                        value={formData.phone}
-                                        onChange={handleInputChange}
-                                        className="edit-input"
-                                    />
-                                ) : (
-                                    <span className="detail-value">{user?.phone || 'N/A'}</span>
-                                )}
-                            </div>
-                        </div>
-                        <div className="detail-card">
-                            <div className="profile-icon">
-                                <MapPin size={24} />
-                            </div>
-                            <div className="detail-info">
-                                <span className="detail-label">Địa chỉ</span>
-                                {isEditing ? (
-                                    <input
-                                        type="text"
-                                        name="address"
-                                        value={formData.address}
-                                        onChange={handleInputChange}
-                                        className="edit-input"
-                                    />
-                                ) : (
-                                    <span className="detail-value">{user?.address || 'N/A'}</span>
-                                )}
-                            </div>
-                        </div>
-                        <div className="detail-card">
-                            <div className="profile-icon">
-                                <User size={24} />
-                            </div>
-                            <div className="detail-info">
-                                <span className="detail-label">Giới tính</span>
-                                {isEditing ? (
-                                    <div className="profile-radio-group">
-                                        <label className="profile-radio-label">
-                                            <input 
-                                                type="radio" 
-                                                name="gender" 
-                                                value="Nam"
-                                                checked={formData.gender === 'Nam' || !formData.gender}
-                                                onChange={handleInputChange}
-                                            />
-                                            <span>Nam</span>
+                                    <div className="modern-radio-group">
+                                        <label className={`radio-pill ${formData.gender === 'Nam' ? 'active' : ''}`}>
+                                            <input type="radio" name="gender" value="Nam" checked={formData.gender === 'Nam'} onChange={handleInputChange} />
+                                            Nam
                                         </label>
-                                        <label className="profile-radio-label">
-                                            <input 
-                                                type="radio" 
-                                                name="gender" 
-                                                value="Nữ"
-                                                checked={formData.gender === 'Nữ'}
-                                                onChange={handleInputChange}
-                                            />
-                                            <span>Nữ</span>
+                                        <label className={`radio-pill ${formData.gender === 'Nữ' ? 'active' : ''}`}>
+                                            <input type="radio" name="gender" value="Nữ" checked={formData.gender === 'Nữ'} onChange={handleInputChange} />
+                                            Nữ
                                         </label>
                                     </div>
                                 ) : (
-                                    <span className="detail-value">{user?.gender || 'Nam'}</span>
+                                    <input type="text" value={user?.gender || 'Nam'} readOnly disabled className="readonly-input" />
                                 )}
                             </div>
-                        </div>
-                        <div className="detail-card">
-                            <div className="profile-icon">
-                                <Calendar size={24} />
-                            </div>
-                            <div className="detail-info">
-                                <span className="detail-label">Ngày sinh</span>
-                                {isEditing ? (
-                                    <input
-                                        type="date"
-                                        name="birthday"
-                                        value={formData.birthday}
-                                        onChange={handleInputChange}
-                                        className="edit-input"
-                                    />
-                                ) : (
-                                    <span className="detail-value">{formatDate(user?.birthday)}</span>
-                                )}
-                            </div>
-                        </div>
-                        <div className="detail-card">
-                            <div className="profile-icon">
-                                <CheckCircle2 size={24} />
-                            </div>
-                            <div className="detail-info">
-                                <span className="detail-label">Ngày tham gia</span>
-                                <span className="detail-value">{formatDate(user?.createdAt)}</span>
+                            <div className="form-group full-width">
+                                <label><MapPin size={14} /> Địa chỉ</label>
+                                <input
+                                    type="text"
+                                    name="address"
+                                    value={isEditing ? formData.address : (user?.address || 'Chưa cập nhật')}
+                                    onChange={handleInputChange}
+                                    readOnly={!isEditing}
+                                    className={isEditing ? 'editable' : 'readonly-input'}
+                                />
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+
+            {/* Modals */}
             <VerificationModal
                 isOpen={showChangePassword}
                 onClose={() => setShowChangePassword(false)}
                 onVerifyCurrentPassword={verifyPassword}
+                onVerifyIdentity={verifyIdentity}
                 onFinalSubmit={onChangePassword}
+            />
+
+            <PasswordConfirmModal
+                isOpen={showPasswordGate}
+                onClose={() => setShowPasswordGate(false)}
+                onConfirm={handleEditStart}
             />
         </div>
     );

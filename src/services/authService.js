@@ -91,3 +91,13 @@ export const verifyPassword = async (password) => {
         throw new Error(error.response?.data?.message || "Mật khẩu không chính xác");
     }
 };
+
+// ─── Verify Identity: Kiểm tra username và email ────────────────────────────
+export const verifyIdentity = async (username, email) => {
+    try {
+        const response = await axios.post('/api/auth/verify-identity', { username, email });
+        return response.data;
+    } catch (error) {
+        throw new Error(error.response?.data?.message || "Thông tin danh tính không chính xác");
+    }
+};

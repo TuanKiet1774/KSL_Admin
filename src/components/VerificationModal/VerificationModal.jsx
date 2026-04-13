@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { 
     Lock, CheckCircle2, AlertCircle, 
-    Eye, EyeOff, KeyRound, ArrowLeft 
+    Eye, EyeOff, KeyRound, ArrowLeft,
+    User, Mail, ShieldCheck
 } from 'lucide-react';
 import './VerificationModal.css';
 
@@ -10,6 +11,7 @@ const VerificationModal = ({
     isOpen, 
     onClose, 
     onVerifyCurrentPassword,
+    onVerifyIdentity,
     onFinalSubmit 
 }) => {
     // States
@@ -20,6 +22,8 @@ const VerificationModal = ({
 
     // Form States
     const [currentPassword, setCurrentPassword] = useState('');
+    const [username, setUsername] = useState('');
+    const [email, setEmail] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     
@@ -36,6 +40,8 @@ const VerificationModal = ({
             setError('');
             setSuccess('');
             setCurrentPassword('');
+            setUsername('');
+            setEmail('');
             setNewPassword('');
             setConfirmPassword('');
             
@@ -72,6 +78,27 @@ const VerificationModal = ({
             setStep(2);
         } catch (err) {
             setError(err.message || 'Mật khẩu hiện tại không chính xác');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleNextStepIdentity = async (e) => {
+        if (e) e.preventDefault();
+        if (loading) return;
+        if (!username.trim() || !email.trim()) {
+            setError('Vui lòng nhập đầy đủ Username và Email');
+            return;
+        }
+
+        try {
+            setLoading(true);
+            setError('');
+            await onVerifyIdentity(username, email);
+            setError('');
+            setStep(3);
+        } catch (err) {
+            setError(err.message || 'Thông tin không chính xác');
         } finally {
             setLoading(false);
         }
@@ -174,6 +201,51 @@ const VerificationModal = ({
     const renderStep2 = () => (
         <div className="verif-step-content" key="step2">
             <div className="verif-icon-wrapper success">
+                <ShieldCheck size={32} />
+            </div>
+            <h2>Xác thực danh tính</h2>
+
+            <div className="verif-input-group">
+                <label>Tên đăng nhập (Username)</label>
+                <div className="verif-input-wrapper">
+                    <User size={18} className="verif-input-icon" />
+                    <input
+                        type="text"
+                        placeholder="Nhập username của bạn..."
+                        value={username}
+                        onChange={(e) => { setUsername(e.target.value); setError(''); }}
+                        disabled={loading}
+                        autoFocus
+                    />
+                </div>
+            </div>
+
+            <div className="verif-input-group">
+                <label>Email</label>
+                <div className="verif-input-wrapper">
+                    <Mail size={18} className="verif-input-icon" />
+                    <input
+                        type="email"
+                        placeholder="Nhập email của bạn..."
+                        value={email}
+                        onChange={(e) => { setEmail(e.target.value); setError(''); }}
+                        onKeyDown={(e) => e.key === 'Enter' && handleNextStepIdentity(e)}
+                        disabled={loading}
+                    />
+                </div>
+            </div>
+
+            {error && <div className="verif-error"><AlertCircle size={14} /> {error}</div>}
+
+            <button className="verif-btn-primary change" onClick={(e) => handleNextStepIdentity(e)} disabled={loading}>
+                {loading ? <div className="verif-spinner"></div> : 'Tiếp tục'}
+            </button>
+        </div>
+    );
+
+    const renderStep3 = () => (
+        <div className="verif-step-content" key="step3">
+            <div className="verif-icon-wrapper success">
                 <KeyRound size={32} />
             </div>
             <h2>Đặt mật khẩu mới</h2>
@@ -245,19 +317,24 @@ const VerificationModal = ({
                 )}
                 <button className="verif-close-btn" onClick={onClose}>×</button>
 
-                {/* Step indicator simplified to 2 steps */}
+                {/* Step indicator */}
                 <div className="verif-steps">
                     <div className={`step-dot ${step >= 1 ? 'active' : ''} ${step > 1 ? 'completed' : ''}`}>
                         {step > 1 ? <CheckCircle2 size={16} /> : '1'}
                     </div>
                     <div className={`step-line ${step >= 2 ? 'active' : ''}`}></div>
-                    <div className={`step-dot ${step >= 2 ? 'active' : ''}`}>
+                    <div className={`step-dot ${step >= 2 ? 'active' : ''} ${step > 2 ? 'completed' : ''}`}>
                         {step > 2 ? <CheckCircle2 size={16} /> : '2'}
+                    </div>
+                    <div className={`step-line ${step >= 3 ? 'active' : ''}`}></div>
+                    <div className={`step-dot ${step >= 3 ? 'active' : ''}`}>
+                        {step > 3 ? <CheckCircle2 size={16} /> : '3'}
                     </div>
                 </div>
 
                 {step === 1 && renderStep1()}
                 {step === 2 && renderStep2()}
+                {step === 3 && renderStep3()}
             </div>
         </div>,
         document.body
