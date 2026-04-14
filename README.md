@@ -1,4 +1,4 @@
-# KSL Admin System - Simple, Your Voice
+# KSL Admin System - Simply, Your Voice
 
 ## 🌟 Giới thiệu
 **KSL Admin** là hệ quản trị cho nền tảng học tập Ngôn ngữ Ký hiệu (KSL). Hệ thống được xây dựng nhằm tối ưu hóa quy trình quản lý nội dung số, giúp người quản trị dễ dàng cập nhật dữ liệu học tập và theo dõi tương tác của người dùng.
