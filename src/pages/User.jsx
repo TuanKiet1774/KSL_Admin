@@ -445,10 +445,6 @@ const User = () => {
                                 <span className="info-value">{selectedUser.exp || 0} EXP</span>
                             </div>
                             <div className="info-item">
-                                <span className="info-label">Điểm số</span>
-                                <span className="info-value">{selectedUser.points || 0} Points</span>
-                            </div>
-                            <div className="info-item">
                                 <span className="info-label">Ngày tham gia</span>
                                 <span className="info-value">{formatDate(selectedUser.createdAt)}</span>
                             </div>

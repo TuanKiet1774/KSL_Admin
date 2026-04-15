@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './style/Profile.css';
 import {
-    User, Mail, Shield, Calendar, MapPin, Phone, Award, Star, Zap,
+    User, Mail, Shield, Calendar, MapPin, Phone, Award, Zap,
     Edit2, Save, Undo2, CheckCircle2, AlertCircle, AtSign, Upload,
     Image as ImageIcon, Camera, Lock, Eye, EyeOff, KeyRound,
     ShieldCheck, RefreshCw, ArrowLeft, ExternalLink, Activity
@@ -307,15 +307,6 @@ const Profile = () => {
                                 <div className="stat-text">
                                     <label>Kinh nghiệm</label>
                                     <span className="value">{user?.exp || 0} Exp</span>
-                                </div>
-                            </div>
-                            <div className="stat-row">
-                                <div className="stat-icon-box points">
-                                    <Star size={20} />
-                                </div>
-                                <div className="stat-text">
-                                    <label>Điểm số</label>
-                                    <span className="value">{user?.points || 0} Pts</span>
                                 </div>
                             </div>
                         </div>

@@ -21,16 +21,6 @@ const wordService = {
         }
     },
 
-    // Get words by topic ID
-    getWordsByTopic: async (topicId) => {
-        try {
-            const response = await axios.get(`/api/words/topic/${topicId}`);
-            return response.data;
-        } catch (error) {
-            throw error;
-        }
-    },
-
     // Create new word
     createWord: async (wordData) => {
         try {
