@@ -107,7 +107,7 @@ const Feedback = () => {
                 {[...Array(5)].map((_, i) => (
                     <Star 
                         key={i} 
-                        size={14} 
+                        size={30} 
                         fill={i < (rating || 0) ? "#f59e0b" : "none"} 
                         color={i < (rating || 0) ? "#f59e0b" : "#e2e8f0"} 
                     />
@@ -182,7 +182,6 @@ const Feedback = () => {
         }
     ];
 
-    // Client-side filtering as per controller logic (no server-side search/paging yet)
     const filteredFeedbacks = feedbacks.filter(fb => {
         const nameMatch = (fb.userId?.fullname || "").toLowerCase().includes(searchTerm.toLowerCase()) || 
                           (fb.userId?.username || "").toLowerCase().includes(searchTerm.toLowerCase());
@@ -233,31 +232,57 @@ const Feedback = () => {
                 title="Chi tiết phản hồi"
             >
                 {selectedFeedback && (
-                    <div className="feedback-detail">
-                        <div className="detail-header">
-                            <div className="user-avatar-circle">
-                                <User size={32} color="#6366f1" />
+                    <div className="feedback-detail-view">
+                        <div className="detail-header-card">
+                            <div className="user-profile-section">
+                                <div className="avatar-wrapper">
+                                    <img 
+                                        src={getAvatar(selectedFeedback.userId)} 
+                                        alt="Avatar" 
+                                        className="large-avatar"
+                                        onError={(e) => { e.target.src = getAvatar(null); }}
+                                    />
+                                    <div className="status-indicator"></div>
+                                </div>
+                                <div className="user-basic-info">
+                                    <h3>{selectedFeedback.userId?.fullname || "Người dùng ẩn"}</h3>
+                                    <span className="username-tag">@{selectedFeedback.userId?.username || "anonymous"}</span>
+                                </div>
                             </div>
-                            <div className="header-text">
-                                <h3>{selectedFeedback.userId?.fullname || selectedFeedback.userId?.username || "Người dùng ẩn"}</h3>
-                                <div className="detail-time">{formatDate(selectedFeedback.createdAt)}</div>
+                            <div className="feedback-time-badge">
+                                <Clock size={14} />
+                                <span>{formatDate(selectedFeedback.createdAt)}</span>
                             </div>
                         </div>
 
-                        <div className="detail-body">
-                            <div className="detail-section">
-                                <label>Mức độ đánh giá</label>
-                                <div className="rating-large">
-                                    {renderStars(selectedFeedback.rating)}
-                                    <span style={{ marginLeft: '10px', fontWeight: 600, color: '#f59e0b' }}>{selectedFeedback.rating}/5</span>
+                        <div className="detail-body-content">
+                            <div className="info-row">
+                                <div className="info-col">
+                                    <div className="section-header">
+                                        <Star size={20} color="#f59e0b" fill="#f59e0b" />
+                                        <h4>Đánh giá từ người dùng</h4>
+                                    </div>
+                                    <div className="rating-display-card">
+                                        <div className="stars-container">
+                                            {renderStars(selectedFeedback.rating)}
+                                        </div>
+                                        <div className="rating-score">
+                                            <span className="current-score">{selectedFeedback.rating}</span>
+                                            <span className="max-score">/5</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
-                            <div className="detail-section">
-                                <label>Nội dung góp ý</label>
-                                <div className="comment-box">
-                                    <MessageSquare size={16} style={{ marginTop: '4px', flexShrink: 0 }} color="#94a3b8" />
-                                    <p>{selectedFeedback.comment || "Không có nội dung chi tiết."}</p>
+                            <div className="info-row">
+                                <div className="info-col">
+                                    <div className="section-header">
+                                        <MessageSquare size={16} color="#6366f1" />
+                                        <h4>Nội dung tin nhắn</h4>
+                                    </div>
+                                    <div className="comment-display-area">
+                                        <p>{selectedFeedback.comment || "Người dùng không để lại lời nhắn kèm theo."}</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>

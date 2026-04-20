@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Eye, Plus, Trash2, Edit2, Award } from 'lucide-react';
+import { Eye, Plus, Trash2, Edit2, Award, Star } from 'lucide-react';
 import Loading from '../components/Loading/Loading';
 import DataTable from '../components/DataTable/DataTable';
 import SearchBox from '../components/SearchBox/SearchBox';
@@ -231,6 +231,7 @@ const User = () => {
             ],
             required: true
         },
+        { name: 'exp', label: 'Kinh nghiệm (EXP)', type: 'number', readOnly: true },
         {
             name: 'level',
             label: 'Trình độ',
@@ -261,7 +262,7 @@ const User = () => {
         {
             header: "Người dùng",
             key: "fullname",
-            width: "30%",
+            width: "20%",
             sortable: true,
             sortKey: "fullname",
             textAlign: "left",
@@ -300,7 +301,7 @@ const User = () => {
         {
             header: "Vai trò",
             key: "role",
-            width: "8%",
+            width: "10%",
             render: (val) => <span className={`badge badge-${val}`}>{val}</span>
         },
         {

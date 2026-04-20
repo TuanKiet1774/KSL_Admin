@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Eye, Plus, Trash2, Edit2, BookOpen, Layers, Award, Image as ImageIcon, Film, MousePointer, X } from 'lucide-react';
+import { Eye, Plus, Trash2, Edit2, BookOpen, Layers, Award, Image as ImageIcon, Film, MousePointer, X, Star } from 'lucide-react';
 import Loading from '../components/Loading/Loading';
 import DataTable from '../components/DataTable/DataTable';
 import SearchBox from '../components/SearchBox/SearchBox';
@@ -266,7 +266,7 @@ const Word = () => {
         {
             header: "Từ vựng",
             key: "name",
-            width: "30%",
+            width: "20%",
             sortable: true,
             sortKey: "name",
             render: (val, row) => (
@@ -288,7 +288,7 @@ const Word = () => {
         {
             header: "Mô tả",
             key: "description",
-            width: "35%",
+            width: "40%",
             render: (val) => <div className="word-desc-column" title={val}>{val}</div>
         },
         {

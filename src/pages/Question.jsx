@@ -319,6 +319,11 @@ const Question = () => {
                         <span className="badge badge-type">{row.type === 'multiple-choice' ? 'Trắc nghiệm' : row.type === 'short-answer' ? 'Tự luận' : 'Nhận diện'}</span>
                         <span className={`badge badge-diff-${row.difficulty?.toLowerCase()}`}>{row.difficulty?.toLowerCase() === 'easy' ? 'Dễ' : row.difficulty?.toLowerCase() === 'medium' ? 'Trung bình' : 'Khó'}</span>
                         <span className="badge badge-topic">{row.topicId?.name}</span>
+                        <span className="badge badge-stats">
+                            <Award size={12} /> {row.score || 1} đ
+                            <span style={{margin: '0 4px', opacity: 0.3}}>|</span>
+                            <Clock size={12} /> {row.time || 30}s
+                        </span>
                     </div>
                 </div>
             )
@@ -375,7 +380,7 @@ const Question = () => {
                             { label: 'Trung bình', value: 'medium' },
                             { label: 'Khó', value: 'hard' }
                         ]}
-                        placeholder="Độ khó"
+                        placeholder="Tất cả độ khó"
                         icon={Target}
                     />
 

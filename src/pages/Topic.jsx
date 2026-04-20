@@ -253,7 +253,7 @@ const Topic = () => {
         {
             header: "Chủ đề",
             key: "name",
-            width: "30%",
+            width: "20%",
             sortable: true,
             sortKey: "name",
             textAlign: "left",
@@ -286,19 +286,6 @@ const Topic = () => {
             render: (val) => (
                 <div className="topic-description-cell" title={val}>
                     {val || "Không có mô tả"}
-                </div>
-            )
-        },
-        {
-            header: "Kinh nghiệm",
-            key: "expRequired",
-            width: "15%",
-            render: (val, row) => (
-                <div className="topic-stats-cell">
-                    <div className="stat-row" style={{ justifyContent: 'center' }}>
-                        <Award size={14} />
-                        <span>{val} EXP</span>
-                    </div>
                 </div>
             )
         },
