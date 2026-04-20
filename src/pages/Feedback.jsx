@@ -105,11 +105,11 @@ const Feedback = () => {
         return (
             <div className="rating-stars">
                 {[...Array(5)].map((_, i) => (
-                    <Star 
-                        key={i} 
-                        size={30} 
-                        fill={i < (rating || 0) ? "#f59e0b" : "none"} 
-                        color={i < (rating || 0) ? "#f59e0b" : "#e2e8f0"} 
+                    <Star
+                        key={i}
+                        size={30}
+                        fill={i < (rating || 0) ? "#f59e0b" : "none"}
+                        color={i < (rating || 0) ? "#f59e0b" : "#e2e8f0"}
                     />
                 ))}
             </div>
@@ -126,18 +126,18 @@ const Feedback = () => {
         {
             header: "Người gửi",
             key: "userId",
-            width: "25%",
+            width: "20%",
             render: (val, row) => (
                 <div className="feedback-user">
-                    <img 
-                        src={getAvatar(row.userId)} 
-                        alt="Avatar" 
+                    <img
+                        src={getAvatar(row.userId)}
+                        alt="Avatar"
                         className="fb-user-avatar"
                         onError={(e) => { e.target.src = getAvatar(null); }}
                     />
                     <div className="user-details">
                         <span className="user-name">{row.userId?.fullname || row.userId?.username || "Người dùng ẩn"}</span>
-                        <div style={{fontSize: '0.75rem', color: '#64748b'}}>@{row.userId?.username || 'anonymous'}</div>
+                        <div style={{ fontSize: '0.75rem', color: '#64748b' }}>@{row.userId?.username || 'anonymous'}</div>
                     </div>
                 </div>
             )
@@ -159,17 +159,6 @@ const Feedback = () => {
             render: (val) => renderStars(val)
         },
         {
-            header: "Thời gian",
-            key: "createdAt",
-            width: "15%",
-            render: (val) => (
-                <div className="feedback-time">
-                    <Clock size={14} style={{ marginRight: '6px' }} />
-                    {formatDate(val)}
-                </div>
-            )
-        },
-        {
             header: "Thao tác",
             key: "_id",
             width: "10%",
@@ -183,8 +172,8 @@ const Feedback = () => {
     ];
 
     const filteredFeedbacks = feedbacks.filter(fb => {
-        const nameMatch = (fb.userId?.fullname || "").toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          (fb.userId?.username || "").toLowerCase().includes(searchTerm.toLowerCase());
+        const nameMatch = (fb.userId?.fullname || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (fb.userId?.username || "").toLowerCase().includes(searchTerm.toLowerCase());
         const commentMatch = (fb.comment || "").toLowerCase().includes(searchTerm.toLowerCase());
         return nameMatch || commentMatch;
     });
@@ -236,9 +225,9 @@ const Feedback = () => {
                         <div className="detail-header-card">
                             <div className="user-profile-section">
                                 <div className="avatar-wrapper">
-                                    <img 
-                                        src={getAvatar(selectedFeedback.userId)} 
-                                        alt="Avatar" 
+                                    <img
+                                        src={getAvatar(selectedFeedback.userId)}
+                                        alt="Avatar"
                                         className="large-avatar"
                                         onError={(e) => { e.target.src = getAvatar(null); }}
                                     />
