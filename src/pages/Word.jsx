@@ -113,6 +113,7 @@ const Word = () => {
             exp: 5,
             'media.type': 'image',
             'media.url': '',
+            youtubeLink: '',
             topicId: topics.length > 0 ? topics[0]._id : ''
         });
         setIsAddModalOpen(true);
@@ -123,6 +124,7 @@ const Word = () => {
             ...word,
             'media.url': word.media?.url || '',
             'media.type': word.media?.type || 'image',
+            youtubeLink: word.youtubeLink || '',
             topicId: word.topicId?._id || word.topicId
         });
         setIsEditModalOpen(true);
@@ -259,7 +261,8 @@ const Word = () => {
             ],
             required: true 
         },
-        { name: 'media.url', label: 'Ảnh/Gif/Video', type: 'upload', required: true, fullWidth: true }
+        { name: 'media.url', label: 'Ảnh/Gif/Video', type: 'upload', required: true, fullWidth: true },
+        { name: 'youtubeLink', label: 'Link YouTube', type: 'text', fullWidth: true, placeholder: 'Dán link youtube vào đây...' }
     ];
 
     const columns = [
@@ -378,13 +381,28 @@ const Word = () => {
                                     <video src={selectedWord.media.url} controls className="detail-video" />
                                 )
                             ) : (
-                                <img 
+                                 <img 
                                     src={selectedWord.media?.url || 'https://via.placeholder.com/300?text=No+Image'} 
                                     alt={selectedWord.name} 
                                     className="detail-img" 
                                 />
                             )}
                         </div>
+                        {selectedWord.youtubeLink && (
+                            <div className="detail-youtube-preview">
+                                <h4>Xem trước Video App (YouTube):</h4>
+                                <iframe 
+                                    width="100%" 
+                                    height="200" 
+                                    src={getYouTubeEmbedUrl(selectedWord.youtubeLink)} 
+                                    title="App YouTube Video" 
+                                    frameBorder="0" 
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                    allowFullScreen
+                                    style={{borderRadius: '12px', marginBottom: '15px'}}
+                                ></iframe>
+                            </div>
+                        )}
                         <div className="detail-info">
                             <h3>{selectedWord.name}</h3>
                             <div className="detail-meta">
