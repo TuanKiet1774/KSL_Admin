@@ -37,6 +37,7 @@ const Word = () => {
     const [isSaving, setIsSaving] = useState(false);
     const [notif, setNotif] = useState({ isOpen: false, type: 'success', message: '' });
     const [previewImage, setPreviewImage] = useState(null);
+    const [activeTab, setActiveTab] = useState('media');
     
     const pageSize = 10;
 
@@ -164,6 +165,7 @@ const Word = () => {
 
     const handleViewDetail = (word) => {
         setSelectedWord(word);
+        setActiveTab('media');
         setIsViewModalOpen(true);
     };
 
@@ -364,45 +366,72 @@ const Word = () => {
             >
                 {selectedWord && (
                     <div className="word-detail-view">
-                        <div className="detail-media">
-                            {selectedWord.media?.type === 'video' ? (
-                                isYouTubeUrl(selectedWord.media.url) ? (
-                                    <iframe 
-                                        width="100%" 
-                                        height="300" 
-                                        src={getYouTubeEmbedUrl(selectedWord.media.url)} 
-                                        title="YouTube video player" 
-                                        frameBorder="0" 
-                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                                        allowFullScreen
-                                        style={{borderRadius: '12px'}}
-                                    ></iframe>
-                                ) : (
-                                    <video src={selectedWord.media.url} controls className="detail-video" />
-                                )
-                            ) : (
-                                 <img 
-                                    src={selectedWord.media?.url || 'https://via.placeholder.com/300?text=No+Image'} 
-                                    alt={selectedWord.name} 
-                                    className="detail-img" 
-                                />
-                            )}
-                        </div>
-                        {selectedWord.youtubeLink && (
-                            <div className="detail-youtube-preview">
-                                <h4>Xem trước Video App (YouTube):</h4>
-                                <iframe 
-                                    width="100%" 
-                                    height="200" 
-                                    src={getYouTubeEmbedUrl(selectedWord.youtubeLink)} 
-                                    title="App YouTube Video" 
-                                    frameBorder="0" 
-                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                                    allowFullScreen
-                                    style={{borderRadius: '12px', marginBottom: '15px'}}
-                                ></iframe>
+                        <div className="detail-visuals-column">
+                            <div className="detail-tabs-nav">
+                                <button 
+                                    className={`detail-tab-item ${activeTab === 'media' ? 'active' : ''}`}
+                                    onClick={() => setActiveTab('media')}
+                                    title="Media Website"
+                                >
+                                    <ImageIcon size={18} />
+                                    <span>Media</span>
+                                </button>
+                                <button 
+                                    className={`detail-tab-item ${activeTab === 'app' ? 'active' : ''}`}
+                                    onClick={() => setActiveTab('app')}
+                                    title="Video xem trước cho App"
+                                >
+                                    <Film size={18} />
+                                    <span>App</span>
+                                </button>
                             </div>
-                        )}
+
+                            <div className="detail-tab-content">
+                                <div className="detail-media">
+                                    {activeTab === 'media' ? (
+                                        selectedWord.media?.type === 'video' ? (
+                                            isYouTubeUrl(selectedWord.media.url) ? (
+                                                <iframe 
+                                                    width="100%" 
+                                                    height="100%" 
+                                                    src={getYouTubeEmbedUrl(selectedWord.media.url)} 
+                                                    title="YouTube video player" 
+                                                    frameBorder="0" 
+                                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                                    allowFullScreen
+                                                ></iframe>
+                                            ) : (
+                                                <video src={selectedWord.media.url} controls className="detail-video" />
+                                            )
+                                        ) : (
+                                            <img 
+                                                src={selectedWord.media?.url || 'https://via.placeholder.com/300?text=No+Image'} 
+                                                alt={selectedWord.name} 
+                                                className="detail-img" 
+                                            />
+                                        )
+                                    ) : (
+                                        selectedWord.youtubeLink ? (
+                                            <iframe 
+                                                width="100%" 
+                                                height="100%" 
+                                                src={getYouTubeEmbedUrl(selectedWord.youtubeLink)} 
+                                                title="App YouTube Video" 
+                                                frameBorder="0" 
+                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                                allowFullScreen
+                                            ></iframe>
+                                        ) : (
+                                            <div className="no-app-video">
+                                                <Film size={32} />
+                                                <p>N/A</p>
+                                            </div>
+                                        )
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+
                         <div className="detail-info">
                             <h3>{selectedWord.name}</h3>
                             <div className="detail-meta">
