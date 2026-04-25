@@ -262,7 +262,7 @@ const User = () => {
         {
             header: "Người dùng",
             key: "fullname",
-            width: "20%",
+            width: "25%",
             sortable: true,
             sortKey: "fullname",
             textAlign: "left",
