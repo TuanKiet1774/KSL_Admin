@@ -98,7 +98,6 @@ const Word = () => {
         }
     };
 
-    // Effect for searchTerm - reset to page 1
     useEffect(() => {
         setCurrentPage(1);
     }, [searchTerm, selectedTopicId]);
@@ -179,9 +178,8 @@ const Word = () => {
             setIsSaving(true);
             const payload = transformPayload(data);
             
-            // Yêu cầu ít nhất một trong hai: media.url hoặc youtubeLink
             if (!payload.media.url && !payload.youtubeLink) {
-                setNotif({ isOpen: true, type: 'error', message: "Vui lòng cung cấp ít nhất Media (Ảnh/GIF/Video) hoặc Link YouTube." });
+                setNotif({ isOpen: true, type: 'error', message: "Vui lòng cung cấp ít nhất Media hoặc Link YouTube." });
                 setIsSaving(false);
                 return;
             }
@@ -213,9 +211,8 @@ const Word = () => {
             setIsSaving(true);
             const payload = transformPayload(data);
 
-            // Yêu cầu ít nhất một trong hai: media.url hoặc youtubeLink
             if (!payload.media.url && !payload.youtubeLink) {
-                setNotif({ isOpen: true, type: 'error', message: "Vui lòng cung cấp ít nhất Media (Ảnh/GIF/Video) hoặc Link YouTube." });
+                setNotif({ isOpen: true, type: 'error', message: "Vui lòng cung cấp ít nhất Media hoặc Link YouTube." });
                 setIsSaving(false);
                 return;
             }
@@ -258,7 +255,7 @@ const Word = () => {
         }
     };
 
-    const paginatedWords = words; // Already paginated from server
+    const paginatedWords = words;
 
     const wordFields = [
         { name: 'topicId', label: 'Chủ đề', type: 'select', options: topics.map(t => ({ label: t.name, value: t._id })), required: true, fullWidth: true },

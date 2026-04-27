@@ -89,7 +89,7 @@ const Login = () => {
                             <input
                                 type="text"
                                 name="emailOrUsername"
-                                placeholder="Username"
+                                placeholder="Nhập tên đăng nhập..."
                                 value={formData.emailOrUsername}
                                 onChange={handleChange}
                                 disabled={loading}
