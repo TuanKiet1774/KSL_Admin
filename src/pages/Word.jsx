@@ -179,6 +179,13 @@ const Word = () => {
             setIsSaving(true);
             const payload = transformPayload(data);
             
+            // Yêu cầu ít nhất một trong hai: media.url hoặc youtubeLink
+            if (!payload.media.url && !payload.youtubeLink) {
+                setNotif({ isOpen: true, type: 'error', message: "Vui lòng cung cấp ít nhất Media (Ảnh/GIF/Video) hoặc Link YouTube." });
+                setIsSaving(false);
+                return;
+            }
+            
             const mediaError = validateMedia(payload.media);
             if (mediaError) {
                 setNotif({ isOpen: true, type: 'error', message: mediaError });
@@ -205,6 +212,13 @@ const Word = () => {
         try {
             setIsSaving(true);
             const payload = transformPayload(data);
+
+            // Yêu cầu ít nhất một trong hai: media.url hoặc youtubeLink
+            if (!payload.media.url && !payload.youtubeLink) {
+                setNotif({ isOpen: true, type: 'error', message: "Vui lòng cung cấp ít nhất Media (Ảnh/GIF/Video) hoặc Link YouTube." });
+                setIsSaving(false);
+                return;
+            }
 
             const mediaError = validateMedia(payload.media);
             if (mediaError) {
@@ -263,7 +277,7 @@ const Word = () => {
             ],
             required: true 
         },
-        { name: 'media.url', label: 'Ảnh/Gif/Video', type: 'upload', required: true, fullWidth: true },
+        { name: 'media.url', label: 'Ảnh/Gif/Video', type: 'upload', fullWidth: true },
         { name: 'youtubeLink', label: 'Link YouTube', type: 'text', fullWidth: true, placeholder: 'Dán link youtube vào đây...' }
     ];
 
