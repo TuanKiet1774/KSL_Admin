@@ -282,99 +282,66 @@ const Profile = () => {
                 </div>
             </div>
 
-            <div className="profile-main-grid">
-                {/* Left Column: Stats & Meta */}
-                <div className="grid-column left">
-                    <div className="modern-card stats-card">
-                        <div className="card-header">
-                            <Activity size={18} />
-                            <h3>Thống kê tài khoản</h3>
-                        </div>
-                        <div className="stats-list">
-                            <div className="stat-row">
-                                <div className="stat-icon-box level">
-                                    <Award size={20} />
-                                </div>
-                                <div className="stat-text">
-                                    <label>Cấp độ</label>
-                                    <span className="value">{user?.level || 'Beginner'}</span>
-                                </div>
-                            </div>
-                            <div className="stat-row">
-                                <div className="stat-icon-box exp">
-                                    <Zap size={20} />
-                                </div>
-                                <div className="stat-text">
-                                    <label>Kinh nghiệm</label>
-                                    <span className="value">{user?.exp || 0} Exp</span>
-                                </div>
-                            </div>
-                        </div>
+            <div className="profile-main-content">
+                <div className="modern-card info-card">
+                    <div className="card-header">
+                        <User size={18} />
+                        <h3>Thông tin cá nhân</h3>
                     </div>
-                </div>
-
-                {/* Right Column: Detailed Info */}
-                <div className="grid-column right">
-                    <div className="modern-card info-card">
-                        <div className="card-header">
-                            <User size={18} />
-                            <h3>Thông tin cá nhân</h3>
+                    <div className="info-form-grid">
+                        <div className="form-group">
+                            <label><Mail size={14} /> Email</label>
+                            <input type="text" value={user?.email || ''} readOnly disabled className="readonly-input" />
                         </div>
-                        <div className="info-form-grid">
-                            <div className="form-group">
-                                <label><Mail size={14} /> Email</label>
-                                <input type="text" value={user?.email || ''} readOnly disabled className="readonly-input" />
-                            </div>
-                            <div className="form-group">
-                                <label><Phone size={14} /> Số điện thoại</label>
-                                <input
-                                    type="text"
-                                    name="phone"
-                                    value={isEditing ? formData.phone : (user?.phone || 'Chưa cập nhật')}
-                                    onChange={handleInputChange}
-                                    readOnly={!isEditing}
-                                    className={isEditing ? 'editable' : 'readonly-input'}
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label><Calendar size={14} /> Ngày sinh</label>
-                                <input
-                                    type={isEditing ? "date" : "text"}
-                                    name="birthday"
-                                    value={isEditing ? formData.birthday : formatDate(user?.birthday)}
-                                    onChange={handleInputChange}
-                                    readOnly={!isEditing}
-                                    className={isEditing ? 'editable' : 'readonly-input'}
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label><ShieldCheck size={14} /> Giới tính</label>
-                                {isEditing ? (
-                                    <div className="modern-radio-group">
-                                        <label className={`radio-pill ${formData.gender === 'Nam' ? 'active' : ''}`}>
-                                            <input type="radio" name="gender" value="Nam" checked={formData.gender === 'Nam'} onChange={handleInputChange} />
-                                            Nam
-                                        </label>
-                                        <label className={`radio-pill ${formData.gender === 'Nữ' ? 'active' : ''}`}>
-                                            <input type="radio" name="gender" value="Nữ" checked={formData.gender === 'Nữ'} onChange={handleInputChange} />
-                                            Nữ
-                                        </label>
-                                    </div>
-                                ) : (
-                                    <input type="text" value={user?.gender || 'Nam'} readOnly disabled className="readonly-input" />
-                                )}
-                            </div>
-                            <div className="form-group full-width">
-                                <label><MapPin size={14} /> Địa chỉ</label>
-                                <input
-                                    type="text"
-                                    name="address"
-                                    value={isEditing ? formData.address : (user?.address || 'Chưa cập nhật')}
-                                    onChange={handleInputChange}
-                                    readOnly={!isEditing}
-                                    className={isEditing ? 'editable' : 'readonly-input'}
-                                />
-                            </div>
+                        <div className="form-group">
+                            <label><Phone size={14} /> Số điện thoại</label>
+                            <input
+                                type="text"
+                                name="phone"
+                                value={isEditing ? formData.phone : (user?.phone || 'Chưa cập nhật')}
+                                onChange={handleInputChange}
+                                readOnly={!isEditing}
+                                className={isEditing ? 'editable' : 'readonly-input'}
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label><Calendar size={14} /> Ngày sinh</label>
+                            <input
+                                type={isEditing ? "date" : "text"}
+                                name="birthday"
+                                value={isEditing ? formData.birthday : formatDate(user?.birthday)}
+                                onChange={handleInputChange}
+                                readOnly={!isEditing}
+                                className={isEditing ? 'editable' : 'readonly-input'}
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label><ShieldCheck size={14} /> Giới tính</label>
+                            {isEditing ? (
+                                <div className="modern-radio-group">
+                                    <label className={`radio-pill ${formData.gender === 'Nam' ? 'active' : ''}`}>
+                                        <input type="radio" name="gender" value="Nam" checked={formData.gender === 'Nam'} onChange={handleInputChange} />
+                                        Nam
+                                    </label>
+                                    <label className={`radio-pill ${formData.gender === 'Nữ' ? 'active' : ''}`}>
+                                        <input type="radio" name="gender" value="Nữ" checked={formData.gender === 'Nữ'} onChange={handleInputChange} />
+                                        Nữ
+                                    </label>
+                                </div>
+                            ) : (
+                                <input type="text" value={user?.gender || 'Nam'} readOnly disabled className="readonly-input" />
+                            )}
+                        </div>
+                        <div className="form-group full-width">
+                            <label><MapPin size={14} /> Địa chỉ</label>
+                            <input
+                                type="text"
+                                name="address"
+                                value={isEditing ? formData.address : (user?.address || 'Chưa cập nhật')}
+                                onChange={handleInputChange}
+                                readOnly={!isEditing}
+                                className={isEditing ? 'editable' : 'readonly-input'}
+                            />
                         </div>
                     </div>
                 </div>

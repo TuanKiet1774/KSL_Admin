@@ -218,17 +218,12 @@
 }
 
 /* --- Main Grid Layout --- */
-.profile-main-grid {
-    display: grid;
-    grid-template-columns: 350px 1fr;
-    gap: 2rem;
-    align-items: stretch;
-}
-
-.grid-column {
+.profile-main-content {
     display: flex;
     flex-direction: column;
     gap: 2rem;
+    max-width: 100%;
+    margin: 0 auto;
 }
 
 .grid-column .modern-card {
@@ -265,65 +260,9 @@
     color: #6366f1;
 }
 
-/* --- Stats List --- */
-.stats-list {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-}
 
-.stat-row {
-    display: flex;
-    align-items: center;
-    gap: 1.25rem;
-    padding: 1.25rem;
-    background: #f8fafc;
-    border-radius: 20px;
-    border: 1px solid #f1f5f9;
-    transition: all 0.2s;
-}
 
-.stat-row:hover {
-    transform: translateX(5px);
-    background: #ffffff;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    border-color: #e2e8f0;
-}
 
-.stat-icon-box {
-    width: 48px;
-    height: 48px;
-    border-radius: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.stat-icon-box.level, 
-.stat-icon-box.exp, 
-.stat-icon-box.points { 
-    background: rgba(99, 102, 241, 0.1); 
-    color: #6366f1; 
-}
-
-.stat-text {
-    display: flex;
-    flex-direction: column;
-}
-
-.stat-text label {
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    color: #64748b;
-    letter-spacing: 0.05em;
-}
-
-.stat-text .value {
-    font-size: 1.25rem;
-    font-weight: 800;
-    color: #1e293b;
-}
 
 /* --- Meta Card --- */
 .meta-card {
@@ -525,14 +464,8 @@
 
 /* Responsiveness */
 @media (max-width: 1024px) {
-    .profile-main-grid {
-        grid-template-columns: 1fr;
-    }
-    .grid-column.left {
-        order: 2;
-    }
-    .grid-column.right {
-        order: 1;
+    .profile-main-content {
+        max-width: 100%;
     }
 }
 

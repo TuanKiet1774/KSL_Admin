@@ -23,7 +23,7 @@ const User = () => {
     const [sortBy, setSortBy] = useState('createdAt');
     const [sortOrder, setSortOrder] = useState('desc');
     const [filterRole, setFilterRole] = useState('all');
-    const [filterLevel, setFilterLevel] = useState('all');
+
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
     const [selectedUser, setSelectedUser] = useState(null);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -53,7 +53,7 @@ const User = () => {
         if (!isInitialLoading) {
             fetchUsers(false);
         }
-    }, [currentPage, searchTerm, filterRole, filterLevel, sortBy, sortOrder]);
+    }, [currentPage, searchTerm, filterRole, sortBy, sortOrder]);
 
     const fetchUsers = async (initial = false) => {
         try {
@@ -65,7 +65,7 @@ const User = () => {
                 search: searchTerm
             };
             if (filterRole !== 'all') params.role = filterRole;
-            if (filterLevel !== 'all') params.level = filterLevel;
+
             if (sortBy) params.sortBy = sortBy;
             if (sortOrder) params.sortOrder = sortOrder;
             const result = await userService.getAllUsers(params);
@@ -99,7 +99,7 @@ const User = () => {
 
     useEffect(() => {
         setCurrentPage(1);
-    }, [searchTerm, filterRole, filterLevel, sortBy, sortOrder]);
+    }, [searchTerm, filterRole, sortBy, sortOrder]);
 
     const handleSortChange = ({ sortBy: newSortBy, sortOrder: newSortOrder }) => {
         setSortBy(newSortBy);
@@ -124,7 +124,6 @@ const User = () => {
     const handleAddClick = () => {
         setFormData({
             role: 'user',
-            level: 'Beginner',
             gender: 'Nam'
         });
         setIsAddModalOpen(true);
@@ -231,17 +230,7 @@ const User = () => {
             ],
             required: true
         },
-        { name: 'exp', label: 'Kinh nghiệm (EXP)', type: 'number', readOnly: true },
-        {
-            name: 'level',
-            label: 'Trình độ',
-            type: 'select',
-            options: [
-                { label: 'Beginner', value: 'Beginner' },
-                { label: 'Intermediate', value: 'Intermediate' },
-                { label: 'Advanced', value: 'Advanced' }
-            ]
-        },
+        // { name: 'exp', label: 'Kinh nghiệm (EXP)', type: 'number', readOnly: true },
         {
             name: 'role',
             label: 'Vai trò',
@@ -305,17 +294,6 @@ const User = () => {
             render: (val) => <span className={`badge badge-${val}`}>{val}</span>
         },
         {
-            header: "Trình độ",
-            key: "level",
-            width: "12%",
-            render: (val) => (
-                <div className="level-badge">
-                    <Award size={16} color="#6366f1" />
-                    <span>{val || "Beginner"}</span>
-                </div>
-            )
-        },
-        {
             header: "Thao tác",
             key: "_id",
             width: "20%",
@@ -358,17 +336,7 @@ const User = () => {
                         icon={Award}
                     />
 
-                    <FilterBox
-                        value={filterLevel}
-                        onChange={setFilterLevel}
-                        options={[
-                            { label: 'Beginner', value: 'Beginner' },
-                            { label: 'Intermediate', value: 'Intermediate' },
-                            { label: 'Advanced', value: 'Advanced' }
-                        ]}
-                        placeholder="Tất cả trình độ"
-                        icon={Award}
-                    />
+
                 </div>
 
                 <button className="btn-add" onClick={handleAddClick}>
@@ -436,14 +404,6 @@ const User = () => {
                             <div className="info-item">
                                 <span className="info-label">Ngày sinh</span>
                                 <span className="info-value">{formatDate(selectedUser.birthday)}</span>
-                            </div>
-                            <div className="info-item">
-                                <span className="info-label">Trình độ</span>
-                                <span className="info-value">{selectedUser.level || "Beginner"}</span>
-                            </div>
-                            <div className="info-item">
-                                <span className="info-label">Kinh nghiệm (EXP)</span>
-                                <span className="info-value">{selectedUser.exp || 0} EXP</span>
                             </div>
                             <div className="info-item">
                                 <span className="info-label">Ngày tham gia</span>
