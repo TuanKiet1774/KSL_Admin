@@ -153,7 +153,13 @@ const User = () => {
                 setNotif({ isOpen: true, type: 'error', message: result.message || "Đã có lỗi xảy ra." });
             }
         } catch (err) {
-            const serverMsg = err.response?.data?.message || err.response?.data?.error || "Lỗi server.";
+            const rawMsg = err.response?.data?.message || err.response?.data?.error || "";
+            const isDuplicateUsername =
+                rawMsg.includes("E11000") && rawMsg.includes("username") ||
+                rawMsg.toLowerCase().includes("duplicate") && rawMsg.includes("username");
+            const serverMsg = isDuplicateUsername
+                ? "Tên đăng nhập đã tồn tại."
+                : rawMsg || "Lỗi server.";
             setNotif({ isOpen: true, type: 'error', message: serverMsg });
         } finally {
             setIsSaving(false);
